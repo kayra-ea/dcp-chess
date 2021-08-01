@@ -1,22 +1,24 @@
 /**
  * This file houses all the logic for the chess game according to standard chess rules.
- *
+ * @summary Contains all the logic for moving pieces around the board.
 */
 
 const cnst = require('../common/constants.js');
 
 /**
  * This function checks if the currently selected move is a legal move. 
- * @param {the} squares - 2D array of the chess board. 
- * @param {} selectedSquare - The x and y position of the piece being moved.
- * @param {} i - The x position of the square to move to.
- * @param {} y - The y position of the square to move to.
+ * @param {Object} squares - 2D array of the chess board. 
+ * @param {Object} selectedSquare - The x and y position of the piece being moved.
+ * @param {Number} i - The x position of the square to move to.
+ * @param {Number} y - The y position of the square to move to.
  */
 function isLegalMove(squares, selectedSquare, i, y) {
   const piece = squares[selectedSquare.x][selectedSquare.y];
   let isLegalMove = false;
 
   console.log(piece === cnst.WHITE_PAWN);
+
+  console.log("Selected Square: ", selectedSquare.x, "," , selectedSquare.y);
 
   switch(piece) {
     case (cnst.WHITE_PAWN):
@@ -37,6 +39,10 @@ function isLegalMove(squares, selectedSquare, i, y) {
 
     case (cnst.WHITE_BISHOP):
     case (cnst.BLACK_BISHOP):
+      console.log("Trying Bishop moves.");
+      console.log("Get Bishop moves: ", getBishopMoves(selectedSquare.x, selectedSquare.y, cnst.WHITE_BISHOP, true));
+
+
       break;
 
     case (cnst.WHITE_ROOK):
@@ -81,6 +87,14 @@ exports.movePiece = function movePiece(squares, selectedSquare, i, y) {
   return cpy_squares;
 }
 
+/**
+ * This fucntion validates the desired move as a legal move by checking if the desired move is within the legal moveset of the piece in question.
+ * 
+ * @param {Object} moves - The array of objects with x and y points for the legal moves of the given piece.
+ * @param {Number} i - The x coordinate of the desired move.
+ * @param {Number} y - The y coordinate of the desired move.
+ * @returns {Number} isValid: returns true if the desired move is within the legal moveset and false if it is not.
+ */
 function checkIfValid(moves, i, y) {
   let isValid = false;
 
