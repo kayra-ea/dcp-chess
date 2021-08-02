@@ -1,13 +1,31 @@
+/**
+ *  @file       index.js
+ *  @overview   This file is the entry point for the DCP chess demo using React. All of the React related code is located in this file, which communicates to the chess engine back-end.
+ *
+ *  @description asdf....
+ *
+ *  @author     Kayra E-A, kayra@kingsds.network, kayra@kayra.ca
+ *  @date       July 2021
+ *
+ */
+
+
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 
-const {board} = require('./lib/board.js');
+const { board } = require('./lib/board.js');
 const logic = require('./lib/logic.js');
 const pussy = board('init');
 
-// ==========================================================================
-
+/**
+ *  @description    - This is a funciton compoment thats returns an HTML button object that describes a square on the chess board.
+ *                  - Note this component does not keep track of the board state, therefore it can be implemented as a function component and not a React component.
+ *
+ *
+ *  @param {Object} props - React component properties.
+ *  @returns <button>  - returns a JSX button, to be rendered by React.
+ */
 function Square(props) {
   return (
     <button 
@@ -19,22 +37,12 @@ function Square(props) {
   );
 }
 
-/*class Square extends React.Component {
-
-  render() {
-    return (
-      <button 
-        className="square"
-        onClick={() => this.props.onClick()}
-      >
-        {this.props.value}
-      </button>
-    );
-  }
-}*/
-
-// ===========================================================================
-
+/**
+ *  @description    - This React component ...
+ *
+ *  @param {Object} props - The React componenet properties object.
+ *  @returns <div>
+ */
 class ChessBoard extends React.Component {
   constructor(props){
     super(props);
@@ -179,9 +187,29 @@ class ChessBoard extends React.Component {
   }
 }
 
-// =============================================================
-
+/**
+ *  @description  asdasdf
+ *
+ *  
+ *
+ */ 
 class Game extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { apiResponse: "" };
+  } 
+  
+  callAPI() {
+    fetch("http://localhost:9000/testAPI")
+      .then(res => res.text())
+      .then(res => this.setState({ apiResponse: res }))
+      .catch(err => console.log(err));
+  }
+
+  componentWillMount() {
+    this.callAPI();
+  }
+
   render() {
     return (
       <div className="game">
@@ -194,7 +222,8 @@ class Game extends React.Component {
           />
         </div>
         <div className="game-info">
-          <div>{"pussy status"}</div>
+          <div>{"PUSSYYY"}</div>
+          <ol>{this.state.apiResponse}</ol>
           <ol>{"More pussy shit"}</ol>
         </div>
         <br></br>
@@ -208,6 +237,10 @@ class Game extends React.Component {
 
 // ========================================
 
+/**
+ *  @description 
+ *
+ */ 
 ReactDOM.render(
   <Game />,
   document.getElementById('root')

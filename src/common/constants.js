@@ -1,3 +1,11 @@
+/**
+ * @file          constants.js
+ * @description   Exports all of the necessary constants for reuse in the dcp web chess application.
+ *
+ * @author        Kayra E-A, kayra@kingsds.network, kayra@kayra.ca
+ * @date          July 2021
+ */ 
+
 exports.MAX_X = 7;
 exports.MAX_Y = 7;
 exports.MIN_X = 0;

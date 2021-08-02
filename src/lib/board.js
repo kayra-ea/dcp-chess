@@ -1,5 +1,13 @@
 /**
+ * @file board.js
+ *
+ * @overview sdaf
+ * @description
+ *
  * This file houses the array representations of the chess board for the React front end. Not to be confused with the bitboard chess boards used for the engine calculations.
+ * 
+ * @author  Kayra E-A, kayra@kingsds.network, kayra@kayra.ca
+ * @date    July 2021
  *
  * @constant 
  */

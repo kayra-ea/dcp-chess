@@ -1,6 +1,10 @@
 /**
- * This file houses all the logic for the chess game according to standard chess rules.
- * @summary Contains all the logic for moving pieces around the board.
+ * @file          logic.js
+ * @description   This file houses all the logic for the chess game according to standard chess rules.
+ * @summary       Contains all the logic for moving pieces around the board.
+ *
+ * @author        Kayra E-A, kayra@kingds.network, kayra@kayra.ca
+ * @date          July 2021
 */
 
 const cnst = require('../common/constants.js');
