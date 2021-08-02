@@ -222,9 +222,9 @@ class Game extends React.Component {
           />
         </div>
         <div className="game-info">
-          <div>{"PUSSYYY"}</div>
+          <div>{"TEST"}</div>
           <ol>{this.state.apiResponse}</ol>
-          <ol>{"More pussy shit"}</ol>
+          <ol>{"More Testing"}</ol>
         </div>
         <br></br>
         <div className="dcp-info">
