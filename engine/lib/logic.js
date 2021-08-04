@@ -10,25 +10,57 @@
 const cnst = require('../common/constants.js');
 
 /**
- * This function checks if the currently selected move is a legal move. 
- * @param {Object} squares - 2D array of the chess board. 
- * @param {Object} selectedSquare - The x and y position of the piece being moved.
+ * This function takes a currently selected chess piece and moves it to the desired square, given that the desired square is within it's legal moveset.
+ * @param {object} squares - 2D array of the chess board. 
+ * @param {object} selectedSquare - The x and y position of the piece being moved.
  * @param {Number} i - The x position of the square to move to.
  * @param {Number} y - The y position of the square to move to.
  */
-function isLegalMove(squares, selectedSquare, i, y) {
-  const piece = squares[selectedSquare.x][selectedSquare.y];
+exports.movePiece = function movePiece(squares, selectedSquare, prevSelectedSquare, reqStatus) {
+  let cpy_squares = squares.slice();
+  let cpy_selectedSquare = Object.assign({}, selectedSquare);
+  let cpy_prevSelectedSquare = Object.assign({}, prevSelectedSquare);
+  const pieceToMove = cpy_squares[cpy_prevSelectedSquare.x][cpy_prevSelectedSquare.y];
+
+  debugger;
+  try {
+    let allow = isLegalMove(cpy_squares, cpy_selectedSquare, cpy_prevSelectedSquare);
+    
+    if (allow === true) {
+      console.log(`pieceToMove: `, pieceToMove);
+
+      //assert(!(pieceToMove === ''), `Error - cannot move a non piece`);
+      // move the piece
+      cpy_squares[cpy_prevSelectedSquare.x][cpy_prevSelectedSquare.y] = '';
+      cpy_squares[cpy_selectedSquare.x][cpy_selectedSquare.y] = pieceToMove;
+
+      reqStatus = 'SUCCESS';
+    } else {
+      reqStatus = 'COULDNOTMOVE';
+    }
+  } catch (error) {
+    reqStatus = 'FAILED';
+    console.error(`Error - Could not move Piece`);
+  }
+
+  return {
+    squares: cpy_squares,
+    reqStatus: reqStatus,
+  };
+}
+
+/**
+ * This function checks if the currently selected move is a legal move. 
+ * @param {Object} squares - 2D array of the chess board. 
+ * @param {Object} selectedSquare - The x and y position of the destination of the piece.
+ * @param {Object} prevSelectedSquare - The x and y position of the piece being moved.
+ */
+function isLegalMove(squares, selectedSquare, prevSelectedSquare) {
+  const piece = squares[prevSelectedSquare.x][prevSelectedSquare.y];
   let isLegalMove = false;
-
-  console.log(piece === cnst.WHITE_PAWN);
-
-  console.log("Selected Square: ", selectedSquare.x, "," , selectedSquare.y);
 
   switch(piece) {
     case (cnst.WHITE_PAWN):
-     console.log("Trying pawn move");
-     // console.log(getPawnMoves(selectedSquare.x, selectedSquare.y, cnst.WHITE_PAWN, true ));
-      //isLegalMove = checkIfValid(getPawnMoves(selectedSquare.x, selectedSquare.y, cnst.WHITE_PAWN, true ), i, y);
       break;
     
     case (cnst.BLACK_PAWN):
@@ -36,9 +68,8 @@ function isLegalMove(squares, selectedSquare, i, y) {
     
     case (cnst.WHITE_KNIGHT):
     case (cnst.BLACK_KNIGHT):
-      console.log("Trying knight moves.");
-      console.log("Get knight moves: ", getKnightMoves(selectedSquare.x, selectedSquare.y, cnst.WHITE_KNIGHT, true));
-      isLegalMove = checkIfValid(getKnightMoves(selectedSquare.x, selectedSquare.y, cnst.WHITE_KNIGHT, true), i, y)
+      const moves = getKnightMoves(prevSelectedSquare.x, prevSelectedSquare.y);
+      isLegalMove = checkIfValid(moves, selectedSquare.x, selectedSquare.y);
       break;
 
     case (cnst.WHITE_BISHOP):
@@ -62,6 +93,7 @@ function isLegalMove(squares, selectedSquare, i, y) {
       break;
 
     default:
+      isLegalMove = false;
       console.log("Selected EMPTY square...");
   
   }
@@ -69,27 +101,6 @@ function isLegalMove(squares, selectedSquare, i, y) {
   return isLegalMove;
 }
 
-
-/**
- * This function takes a currently selected chess piece and moves it to the desired square, given that the desired square is within it's legal moveset.
- * @param {object} squares - 2D array of the chess board. 
- * @param {object} selectedSquare - The x and y position of the piece being moved.
- * @param {Number} i - The x position of the square to move to.
- * @param {Number} y - The y position of the square to move to.
- */
-exports.movePiece = function movePiece(squares, selectedSquare, i, y) {
-  const cpy_squares = squares.slice();
-  const pieceToMove = cpy_squares[selectedSquare.x][selectedSquare.y];
-
-  if(isLegalMove(cpy_squares, selectedSquare, i, y)) {
-    cpy_squares[selectedSquare.x][selectedSquare.y] = '';
-    cpy_squares[i][y] = pieceToMove;
-  } else {
-    console.log("INVALID MOVE");
-  }
-
-  return cpy_squares;
-}
 
 /**
  * This fucntion validates the desired move as a legal move by checking if the desired move is within the legal moveset of the piece in question.

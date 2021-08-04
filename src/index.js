@@ -16,7 +16,7 @@ import './index.css';
 
 const { board } = require('./lib/board.js');
 const logic = require('./lib/logic.js');
-const pussy = board('init');
+const bp = board('init');
 
 /**
  *  @description    - This is a funciton compoment thats returns an HTML button object that describes a square on the chess board.
@@ -47,23 +47,90 @@ class ChessBoard extends React.Component {
   constructor(props){
     super(props);
     this.state = {
+      functionCall: null,
+      functionCallArgs: null,
       squares: this.props.board.squares,
       colour: this.props.board.colours,
-      selectedSquare: {x: null, y: null},
+      selectedSquare: { x: null, y: null },
+      prevSelectedSquare: { x: null, y: null },
       pieceIsSelected: false,
       isPlayerTurn: true,
     };
   }
+
+  callEngineAPI(state) {
+    let msg = {};
+    msg.state = Object.assign({}, state);
+    msg.msgStatus = {
+      reqStatus: null,
+      reqStatusCode: NaN,
+    };
+
+    fetch("http://localhost:9000/engineAPI", { 
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(msg)
+    })
+      .then(response => response.json())
+      .then(response => {
+        console.log("GOT THE RESPONSE: ");
+        console.log((response));
+        // this.setState({ apiResponse: JSON.stringify(response) });
+      })
+      .catch(err => console.log(err));
+  }
+
+  /*componentDidMount() {
+    this.callEngineAPI();
+  }*/
 
   resetColour() {
     return board('init').colours;
   }
 
   handleClick(i, y) {
-    const squares = this.state.squares.slice(); //shallow copy
+    let state = Object.assign({}, this.state);
+  
+    //mark the previous and current selected square
+    state.prevSelectedSquare = Object.assign({}, state.selectedSquare);
+    state.selectedSquare = { x: i, y: y };
+
+    //highlight the selected square;
+    state.colour[i][y] = 'sq-selected';
+
+    // If a piece was previously selected, try to move the piece to the current square.
+    if (state.pieceIsSelected) {
+      state.functionCall = 'movePiece';
+      state.functionCallArgs = {
+        squares: state.squares,
+        selectedSquare: state.selectedSquare, // the square to move to.
+        prevSelectedSquare: state.prevSelectedSquare, //the square to move from.
+      };
+
+      this.callEngineAPI(state);
+    }
+
+    // Determine wether a new piece is selected
+    if (state.squares[i][y] !== '') {
+      state.pieceIsSelected = true;
+    } else {
+      state.pieceIsSelected = false;
+    }
+   
+    
+
+   // console.log(i, " : ", y);
+   // console.log(state);
+
+    this.setState(state);
+
+    /*const squares = this.state.squares.slice(); //shallow copy
     const colour = this.resetColour(); //shallow copy
     let pieceIsSelected = this.state.pieceIsSelected;
-
+  
+    
     if (squares[i][y] !== ''){
       pieceIsSelected = true;
     } else {
@@ -73,7 +140,16 @@ class ChessBoard extends React.Component {
     colour[i][y] = 'sq-selected';
    
     if (this.state.pieceIsSelected) {
-      logic.movePiece(this.state.squares, this.state.selectedSquare, i, y);
+      state.functionCall = 'movePiece';
+      state.functionCallArgs = {
+        squares: state.squares,
+        selectedSquare: state.selectedSquare,
+        i: i,
+        y: y,
+      }
+
+      this.callEngineAPI(state);
+      //logic.movePiece(this.state.squares, this.state.selectedSquare, i, y);
     } 
 
     this.setState({
@@ -83,7 +159,7 @@ class ChessBoard extends React.Component {
       pieceIsSelected: pieceIsSelected,
       isPlayerTurn: true,
     });
-
+    */
   }
 
   renderSquare(i, y) {
@@ -194,21 +270,34 @@ class ChessBoard extends React.Component {
  *
  */ 
 class Game extends React.Component {
-  constructor(props) {
+  /*constructor(props) {
     super(props);
     this.state = { apiResponse: "" };
-  } 
+  } */
   
-  callAPI() {
+  /*callAPI() {
     fetch("http://localhost:9000/testAPI")
       .then(res => res.text())
       .then(res => this.setState({ apiResponse: res }))
       .catch(err => console.log(err));
+
+    fetch("http://localhost:9000/engineAPI", { 
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data)
+    })
+      .then(response => response.json())
+      .then(response => { 
+        this.setState({ apiResponse: JSON.stringify(response) });
+      })
+      .catch(err => console.log(err));
   }
 
-  componentWillMount() {
+  componentDidMount() {
     this.callAPI();
-  }
+  }*/
 
   render() {
     return (
@@ -218,12 +307,12 @@ class Game extends React.Component {
         </div>
         <div className="game-board">
           <ChessBoard
-            board={pussy}
+            board={bp}
           />
         </div>
         <div className="game-info">
           <div>{"TEST"}</div>
-          <ol>{this.state.apiResponse}</ol>
+          <ol>{"Some Tesing"}</ol>
           <ol>{"More Testing"}</ol>
         </div>
         <br></br>
