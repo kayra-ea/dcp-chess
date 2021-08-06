@@ -1,37 +1,36 @@
 /**
  *  @file         engineAPI.js
  *  @overview     This is the overview
- *  @description  This is the description 
+ *  @description  This is the description
  *
  *  @author       Kayra E-A, kayra@kingsds.network, kayra@kayra.ca
  *  @date         August 2021
  *
  */
 
-const logic = require('../lib/logic');
+const logic = require("../lib/logic");
 
 var express = require("express");
 var router = express.Router();
 
-router.get('/', (req, res, next) => {
+router.get("/", (req, res, next) => {
   res.send("Engine API is working properly");
 });
 
 /**
  *  @description This router receives all of the post messages from the React client. IT executes the desired function call, and returns back the game state to the frontend.
- */ 
-router.post('/', (req, res, next) => {
+ */
+router.post("/", (req, res, next) => {
   let msg = Object.assign({}, req.body);
 
-  let state  = msg.state;
+  let state = msg.state;
   let { functionCall, functionCallArgs } = state;
-  let reqStatus = msg.msgStatus.reqStatus;
-  let reqStatusCode = msg.msgStatus.reqStatusCode;
-  
-switch(functionCall) {
-    case ('movePiece'):
+  let { reqStatus, reqStatusCode } = msg.msgStatus;
+
+  switch (functionCall) {
+    case "movePiece":
       debugger;
-      let ret  = logic.movePiece(...Object.values(functionCallArgs), reqStatus);
+      let ret = logic.movePiece(...Object.values(functionCallArgs), reqStatus);
       debugger;
       reqStatus = ret.reqStatus;
       state.squares = ret.squares;
@@ -39,18 +38,20 @@ switch(functionCall) {
       break;
 
     default:
-
   }
 
-  if (reqStatus === 'SUCCESS') {
+  if (reqStatus === "SUCCESS") {
     reqStatusCode = 6000;
   }
 
-  //WHY DOEST msg.msgStatus.reqStatus update???!?!!!?!?!?!?
+  msg.msgStatus.reqStatus = reqStatus;
+  msg.msgStatus.reqStatusCode = reqStatusCode;
 
-  console.log(`reqStatus: `, reqStatus); 
+  console.log(`reqStatus: `, reqStatus);
   console.log(`reqStatusCode: `, reqStatusCode);
-  
+  console.log(`state.squares: `, state.squares);
+  console.log(`msg: `, msg);
+
   res.send(msg); //echo the result back to the client.
 });
 
