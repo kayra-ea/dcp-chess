@@ -11,7 +11,7 @@ exports.MAX_Y = 7;
 exports.MIN_X = 0;
 exports.MIN_Y = 0;
 
-exports.WHITE_KING = '\u2654';
+exports.WHITE_KING =  '\u2654';
 exports.WHITE_QUEEN = '\u2655';
 exports.WHITE_ROOK = '\u2656';
 exports.WHITE_BISHOP = '\u2657';
@@ -27,3 +27,4 @@ exports.BLACK_PAWN = '\u265F';
 
 exports.l = 'sq-light';
 exports.d = 'sq-dark';
+

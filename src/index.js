@@ -47,16 +47,49 @@ class ChessBoard extends React.Component {
       functionCallArgs: null,
       squares: this.props.board.squares,
       colour: this.props.board.colours,
-      selectedSquare: { x: 3, y: 3 },
+      selectedSquare: { x: null, y: null },
       prevSelectedSquare: { x: null, y: null },
       pieceIsSelected: false,
       isPlayerTurn: true,
     };
   }
+  
+  //reset colors, is piece selected,etc now that the move has been played
+  cleanUpState(state) {
+
+        //reset color, couldn't figure out a simpler way to do it but I do know this probably aint the best way
+    if ((state.prevSelectedSquare.x + state.prevSelectedSquare.y) % 2 === 0){
+      board.colours[state.prevSelectedSquare.x][state.prevSelectedSquare.y] = 'sq-dark'
+    } else{
+      board.colours[state.prevSelectedSquare.x][state.prevSelectedSquare.y] = 'sq-light'
+    }
+
+    if ((state.selectedSquare.x + state.selectedSquare.y) % 2 === 0){
+      board.colours[state.selectedSquare.x][state.selectedSquare.y] = 'sq-dark'
+    } else{
+      board.colours[state.selectedSquare.x][state.selectedSquare.y] = 'sq-light'
+    }
+
+    state.colour = board.colours
+    
+    //reset selected pieces
+    state.pieceIsSelected = false;
+    state.prevSelectedSquare.x = null;
+    state.prevSelectedSquare.y = null;
+    state.selectedSquare.x= null;
+    state.selectedSquare.y = null;
+    state.functionCall = null;
+    state.functionCallArgs = null;
+
+    return state;
+
+  }
 
   callEngineAPI(state) {
     let msg = {};
     msg.state = Object.assign({}, state);
+    console.log('called callEngineApi')
+
     msg.msgStatus = {
       reqStatus: null,
       reqStatusCode: NaN,
@@ -73,13 +106,20 @@ class ChessBoard extends React.Component {
       .then((response) => {
         console.log("GOT THE RESPONSE: ");
         console.log(response.state);
+
+        response.state = this.cleanUpState(response.state)
         this.setState(response.state);
       })
       .catch((err) => console.log(err));
   }
-
+  
   handleClick(i, y) {
     let state = Object.assign({}, this.state);
+
+    //check to make sure they haven't selected a square without first selecting a piece
+    if(state.pieceIsSelected === false && state.squares[i][y] === "") {
+      return state;
+    }
 
     //mark the previous and current selected square
     state.prevSelectedSquare = Object.assign({}, state.selectedSquare);
@@ -104,11 +144,20 @@ class ChessBoard extends React.Component {
     console.log("prevX: ", state.prevSelectedSquare.x);
     console.log("prevY", state.prevSelectedSquare.y);
 
-    let poo = state.prevSelectedSquare.x;
-    let pee = state.prevSelectedSquare.y;
+    console.log("selkectX: ", state.selectedSquare.x);
+    console.log("selectY", state.selectedSquare.y);
+
+
+    let prevX = state.prevSelectedSquare.x;
+    let prevY = state.prevSelectedSquare.y;
+
+    if(prevX === null && prevY === null){
+      prevX = state.selectedSquare.x;
+      prevY = state.selectedSquare.y;
+    }
 
     // Determine wether a new piece is selected
-    if (state.squares[poo][pee] !== "") {
+    if (state.squares[prevX][prevY] !== "") {
       state.pieceIsSelected = true;
     } else {
       state.pieceIsSelected = false;

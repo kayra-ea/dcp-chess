@@ -26,9 +26,8 @@ function isLegalMove(squares, selectedSquare, i, y) {
 
   switch(piece) {
     case (cnst.WHITE_PAWN):
-     console.log("Trying pawn move");
-     // console.log(getPawnMoves(selectedSquare.x, selectedSquare.y, cnst.WHITE_PAWN, true ));
-      //isLegalMove = checkIfValid(getPawnMoves(selectedSquare.x, selectedSquare.y, cnst.WHITE_PAWN, true ), i, y);
+      debugger;
+      isLegalMove = checkIfValid(getPawnMoves(selectedSquare.x, selectedSquare.y, cnst.WHITE_PAWN, true), i, y)
       break;
     
     case (cnst.BLACK_PAWN):
@@ -54,6 +53,8 @@ function isLegalMove(squares, selectedSquare, i, y) {
       break;
     
     case (cnst.WHITE_QUEEN):
+      isLegalMove = checkIfValid(getQueenMoves(selectedSquare.x, selectedSquare.y), i, y)
+      break;
     case (cnst.BLACK_QUEEN):
       break;
 
@@ -101,7 +102,7 @@ exports.movePiece = function movePiece(squares, selectedSquare, i, y) {
  */
 function checkIfValid(moves, i, y) {
   let isValid = false;
-
+  debugger;
   for (const entry of moves) {
     if (entry.x !== i && entry.y !== y) {
       isValid = true;
@@ -150,34 +151,59 @@ function getKingMoves(i, y, hasNotCastled) {
 
 function getBishopMoves(i, y){
   let moves = [];
-  let p, q;
+  let tempi, tempy, q;
 
-  for (p = i; p <= cnst.MAX_X; p++) {
-    for (q = y; q <= cnst.MAX_Y; q++ ) {
-      moves.push({ x: p, y: q });
+//upward right diagonal
+tempi = i;
+tempy = y;
+for (q = y; q <= cnst.MAX_Y - 1; q++ ) {
+    tempi = tempi - 1;
+    tempy = tempy + 1;
+    if (tempi < 0 || tempi > 7 || tempy < 0 || tempy > 7){
+      break;
+  }
+    moves.push({ x: tempi, y: tempy });
+}
+
+//upward left diagonal
+  tempi = i;
+  tempy = y;
+  for (q = y; q >= cnst.MIN_Y - 1; q-- ) {
+      tempi = tempi - 1;
+      tempy = tempy - 1;
+      if (tempi < 0 || tempi > 7 || tempy < 0 || tempy > 7){
+        break;
     }
+      moves.push({ x: tempi, y: tempy });
   }
 
-  for (p = i; p <= cnst.MAX_X; p++) {
-    for (q = y; q >= cnst.MIN_Y; q-- ) {
-      moves.push({ x: p, y: q });
+//downward right diagonal
+  tempi = i;
+  tempy = y;
+  for (q = y; q <= cnst.MAX_Y - 1; q++ ) {
+      tempi = tempi + 1;
+      tempy = tempy + 1;
+      if (tempi < 0 || tempi > 7 || tempy < 0 || tempy > 7){
+        break;
     }
+      moves.push({ x: tempi, y: tempy });
   }
-  
-  for (p = i; p >= cnst.MIN_X; p--) {
-    for (q = y; q >= cnst.MIN_Y; q-- ) {
-      moves.push({ x: p, y: q });
+
+//downward left diagonal
+  tempi = i;
+  tempy = y;
+  for (q = y; q >= cnst.MIN_Y - 1; q-- ) {
+      tempi = tempi + 1;
+      tempy = tempy - 1;
+      if (tempi < 0 || tempi > 7 || tempy < 0 || tempy > 7){
+        break;
     }
+      moves.push({ x: tempi, y: tempy });
   }
-  
-  for (p = i; p >= cnst.MIN_X; p--) {
-    for (q = y; q <= cnst.MAX_Y; q++ ) {
-      moves.push({ x: p, y: q });
-    }
-  }
-  
+
   return moves;
 }
+
 
 function getRookMoves(i, y){
   let moves = [];
@@ -205,8 +231,13 @@ function getRookMoves(i, y){
 function getQueenMoves(i, y) {
   let moves = [];
 
-  moves.push(getRookMoves(i, y));
-  moves.push(getBishopMoves(i, y));
+  let rookMoves = getRookMoves(i,y);
+  let bishMoves = getBishopMoves(i,y);
+
+  moves = rookMoves.concat(bishMoves);
+
+  // moves.push(getRookMoves(i, y));
+  // moves.push(getBishopMoves(i, y));
 
   return moves;
 }

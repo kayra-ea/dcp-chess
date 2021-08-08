@@ -66,11 +66,16 @@ exports.movePiece = function movePiece(
  * @param {Object} prevSelectedSquare - The x and y position of the piece being moved.
  */
 function isLegalMove(squares, selectedSquare, prevSelectedSquare) {
+  debugger;
   const piece = squares[prevSelectedSquare.x][prevSelectedSquare.y];
   let isLegalMove = false;
+  let moves = [];
+  debugger;
 
   switch (piece) {
     case cnst.WHITE_PAWN:
+      moves = getPawnMoves(prevSelectedSquare.x, prevSelectedSquare.y,cnst.WHITE_PAWN,true);
+      isLegalMove = checkIfValid(moves, selectedSquare.x, selectedSquare.y);
       break;
 
     case cnst.BLACK_PAWN:
@@ -78,11 +83,15 @@ function isLegalMove(squares, selectedSquare, prevSelectedSquare) {
 
     case cnst.WHITE_KNIGHT:
     case cnst.BLACK_KNIGHT:
-      const moves = getKnightMoves(prevSelectedSquare.x, prevSelectedSquare.y);
+      moves = getKnightMoves(prevSelectedSquare.x, prevSelectedSquare.y);
       isLegalMove = checkIfValid(moves, selectedSquare.x, selectedSquare.y);
       break;
 
     case cnst.WHITE_BISHOP:
+      moves = getBishopMoves(prevSelectedSquare.x, prevSelectedSquare.y);
+      isLegalMove = checkIfValid(moves, selectedSquare.x, selectedSquare.y);
+      break;
+
     case cnst.BLACK_BISHOP:
       console.log("Trying Bishop moves.");
       console.log(
@@ -98,14 +107,23 @@ function isLegalMove(squares, selectedSquare, prevSelectedSquare) {
       break;
 
     case cnst.WHITE_ROOK:
+      moves = getRookMoves(prevSelectedSquare.x, prevSelectedSquare.y);
+      isLegalMove = checkIfValid(moves, selectedSquare.x, selectedSquare.y);
+      break;
     case cnst.BLACK_ROOK:
       break;
 
     case cnst.WHITE_QUEEN:
+      moves = getQueenMoves(prevSelectedSquare.x, prevSelectedSquare.y);
+      isLegalMove = checkIfValid(moves, selectedSquare.x, selectedSquare.y);
+      break;
     case cnst.BLACK_QUEEN:
       break;
 
     case cnst.WHITE_KING:
+      moves = getKingMoves(prevSelectedSquare.x, prevSelectedSquare.y);
+      isLegalMove = checkIfValid(moves, selectedSquare.x, selectedSquare.y);
+      break;
     case cnst.BLACK_KING:
       break;
 
@@ -129,7 +147,7 @@ function checkIfValid(moves, i, y) {
   let isValid = false;
 
   for (const entry of moves) {
-    if (entry.x !== i && entry.y !== y) {
+    if (entry.x === i && entry.y === y) {
       isValid = true;
       break;
     }
@@ -175,33 +193,51 @@ function getKingMoves(i, y, hasNotCastled) {
 
 function getBishopMoves(i, y) {
   let moves = [];
-  let p, q;
+  let tempi, tempy, q;
 
-  for (p = i; p <= cnst.MAX_X; p++) {
-    for (q = y; q <= cnst.MAX_Y; q++) {
-      moves.push({ x: p, y: q });
-    }
+//upward right diagonal
+tempi = i;
+tempy = y;
+for (q = y; q <= cnst.MAX_Y - 1; q++ ) {
+    tempi = tempi - 1;
+    tempy = tempy + 1;
+    moves.push({ x: tempi, y: tempy });
+}
+
+//upward left diagonal
+tempi = i;
+tempy = y;
+for (q = y; q >= cnst.MIN_Y - 1; q-- ) {
+    tempi = tempi - 1;
+    tempy = tempy - 1;
+    moves.push({ x: tempi, y: tempy });
+}
+
+//downward right diagonal
+tempi = i;
+tempy = y;
+for (q = y; q <= cnst.MAX_Y - 1; q++ ) {
+    tempi = tempi + 1;
+    tempy = tempy + 1;
+    if (tempi < 0 || tempi > 7 || tempy < 0 || tempy > 7){
+      break;
   }
+    moves.push({ x: tempi, y: tempy });
+}
 
-  for (p = i; p <= cnst.MAX_X; p++) {
-    for (q = y; q >= cnst.MIN_Y; q--) {
-      moves.push({ x: p, y: q });
-    }
+//downward left diagonal
+tempi = i;
+tempy = y;
+for (q = y; q >= cnst.MIN_Y - 1; q-- ) {
+    tempi = tempi + 1;
+    tempy = tempy - 1;
+    if (tempi < 0 || tempi > 7 || tempy < 0 || tempy > 7){
+      break;
   }
+    moves.push({ x: tempi, y: tempy });
+}
 
-  for (p = i; p >= cnst.MIN_X; p--) {
-    for (q = y; q >= cnst.MIN_Y; q--) {
-      moves.push({ x: p, y: q });
-    }
-  }
-
-  for (p = i; p >= cnst.MIN_X; p--) {
-    for (q = y; q <= cnst.MAX_Y; q++) {
-      moves.push({ x: p, y: q });
-    }
-  }
-
-  return moves;
+return moves;
 }
 
 function getRookMoves(i, y) {
@@ -230,8 +266,9 @@ function getRookMoves(i, y) {
 function getQueenMoves(i, y) {
   let moves = [];
 
-  moves.push(getRookMoves(i, y));
-  moves.push(getBishopMoves(i, y));
+  let rookMoves = getRookMoves(i,y);
+  let bishMoves = getBishopMoves(i,y);
+  moves = rookMoves.concat(bishMoves);
 
   return moves;
 }
@@ -240,8 +277,8 @@ function getPawnMoves(i, y, c, isFirstMove) {
   let moves = [];
 
   if (c === cnst.WHITE_PAWN) {
-    moves.push({ x: i, y: y - 1 });
-    if (isFirstMove) moves.push({ x: i, y: y - 2 });
+    moves.push({ x: i - 1, y: y });
+    if (isFirstMove) moves.push({ x: i - 2, y: y });
   } else if (c === cnst.BLACK_PAWN) {
     moves.push({ x: i, y: y + 1 });
     if (isFirstMove) moves.push({ x: i, y: y + 2 });
