@@ -43,7 +43,7 @@ function isLegalMove(squares, selectedSquare, i, y) {
     case (cnst.WHITE_BISHOP):
     case (cnst.BLACK_BISHOP):
       console.log("Trying Bishop moves.");
-      console.log("Get Bishop moves: ", getBishopMoves(selectedSquare.x, selectedSquare.y, cnst.WHITE_BISHOP, true));
+      console.log("Get Bishop moves: ", getBishopMoves(selectedSquare.x, selectedSquare.y, squares));
 
 
       break;
@@ -149,7 +149,7 @@ function getKingMoves(i, y, hasNotCastled) {
   return moves;
 }
 
-function getBishopMoves(i, y){
+function getBishopMoves(i, y, squares){
   let moves = [];
   let tempi, tempy, q;
 
@@ -162,6 +162,12 @@ for (q = y; q <= cnst.MAX_Y - 1; q++ ) {
     if (tempi < 0 || tempi > 7 || tempy < 0 || tempy > 7){
       break;
   }
+
+//checks for piece blocking
+  if (squares[tempi][tempy] !== ""){
+    break;
+  }
+
     moves.push({ x: tempi, y: tempy });
 }
 
@@ -174,6 +180,11 @@ for (q = y; q <= cnst.MAX_Y - 1; q++ ) {
       if (tempi < 0 || tempi > 7 || tempy < 0 || tempy > 7){
         break;
     }
+
+//checks for piece blocking
+  if (squares[tempi][tempy] !== ""){
+    break;
+  }
       moves.push({ x: tempi, y: tempy });
   }
 
@@ -186,6 +197,11 @@ for (q = y; q <= cnst.MAX_Y - 1; q++ ) {
       if (tempi < 0 || tempi > 7 || tempy < 0 || tempy > 7){
         break;
     }
+
+//checks for piece blocking
+  if (squares[tempi][tempy] !== ""){
+    break;
+  }
       moves.push({ x: tempi, y: tempy });
   }
 
@@ -198,6 +214,11 @@ for (q = y; q <= cnst.MAX_Y - 1; q++ ) {
       if (tempi < 0 || tempi > 7 || tempy < 0 || tempy > 7){
         break;
     }
+
+//checks for piece blocking
+  if (squares[tempi][tempy] !== ""){
+    break;
+  }
       moves.push({ x: tempi, y: tempy });
   }
 
@@ -205,39 +226,48 @@ for (q = y; q <= cnst.MAX_Y - 1; q++ ) {
 }
 
 
-function getRookMoves(i, y){
+function getRookMoves(i, y, squares){
   let moves = [];
   let p;
 
   for (p = i; p <= cnst.MAX_X; p++) {
+    if (squares[i][y] !== ""){
+      break;
+    }
     moves.push({ x: p, y: y });
   }
 
   for (p = i; p >= cnst.MIN_X; p--) {
+    if (squares[i][y] !== ""){
+      break;
+    }
     moves.push({ x: p, y: y });
   }
 
   for (p = y; p <= cnst.MAX_Y; p++) {
+    if (squares[i][y] !== ""){
+      break;
+    }
     moves.push({ x: i, y: p });
   }
 
   for (p = y; p >= cnst.MIN_Y; p--) {
+    if (squares[i][y] !== ""){
+      break;
+    }
     moves.push({x: i, y: p });
   }
 
   return moves;
 }
 
-function getQueenMoves(i, y) {
+function getQueenMoves(i, y,squares) {
   let moves = [];
 
-  let rookMoves = getRookMoves(i,y);
-  let bishMoves = getBishopMoves(i,y);
+  let rookMoves = getRookMoves(i,y, squares);
+  let bishMoves = getBishopMoves(i,y,squares);
 
   moves = rookMoves.concat(bishMoves);
-
-  // moves.push(getRookMoves(i, y));
-  // moves.push(getBishopMoves(i, y));
 
   return moves;
 }
