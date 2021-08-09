@@ -15,7 +15,6 @@ import "./index.css";
 
 const { board } = require("./lib/board.js");
 const bp = board.colours.slice();
-const logic = require("./lib/logic.js");
 
 /**
  *  @description    - This is a funciton compoment thats returns an HTML button object that describes a square on the chess board.
@@ -53,42 +52,43 @@ class ChessBoard extends React.Component {
       isPlayerTurn: true,
     };
   }
-  
+
   //reset colors, is piece selected,etc now that the move has been played
   cleanUpState(state) {
-
-        //reset color, couldn't figure out a simpler way to do it but I do know this probably aint the best way
-    if ((state.prevSelectedSquare.x + state.prevSelectedSquare.y) % 2 === 0){
-      board.colours[state.prevSelectedSquare.x][state.prevSelectedSquare.y] = 'sq-dark'
-    } else{
-      board.colours[state.prevSelectedSquare.x][state.prevSelectedSquare.y] = 'sq-light'
+    //reset color, couldn't figure out a simpler way to do it but I do know this probably aint the best way
+    if ((state.prevSelectedSquare.x + state.prevSelectedSquare.y) % 2 === 0) {
+      board.colours[state.prevSelectedSquare.x][state.prevSelectedSquare.y] =
+        "sq-dark";
+    } else {
+      board.colours[state.prevSelectedSquare.x][state.prevSelectedSquare.y] =
+        "sq-light";
     }
 
-    if ((state.selectedSquare.x + state.selectedSquare.y) % 2 === 0){
-      board.colours[state.selectedSquare.x][state.selectedSquare.y] = 'sq-dark'
-    } else{
-      board.colours[state.selectedSquare.x][state.selectedSquare.y] = 'sq-light'
+    if ((state.selectedSquare.x + state.selectedSquare.y) % 2 === 0) {
+      board.colours[state.selectedSquare.x][state.selectedSquare.y] = "sq-dark";
+    } else {
+      board.colours[state.selectedSquare.x][state.selectedSquare.y] =
+        "sq-light";
     }
 
-    state.colour = board.colours
-    
+    state.colour = board.colours;
+
     //reset selected pieces
     state.pieceIsSelected = false;
     state.prevSelectedSquare.x = null;
     state.prevSelectedSquare.y = null;
-    state.selectedSquare.x= null;
+    state.selectedSquare.x = null;
     state.selectedSquare.y = null;
     state.functionCall = null;
     state.functionCallArgs = null;
 
     return state;
-
   }
 
   callEngineAPI(state) {
     let msg = {};
     msg.state = Object.assign({}, state);
-    console.log('called callEngineApi')
+    console.log("called callEngineApi");
 
     msg.msgStatus = {
       reqStatus: null,
@@ -107,17 +107,17 @@ class ChessBoard extends React.Component {
         console.log("GOT THE RESPONSE: ");
         console.log(response.state);
 
-        response.state = this.cleanUpState(response.state)
+        response.state = this.cleanUpState(response.state);
         this.setState(response.state);
       })
       .catch((err) => console.log(err));
   }
-  
+
   handleClick(i, y) {
     let state = Object.assign({}, this.state);
 
     //check to make sure they haven't selected a square without first selecting a piece
-    if(state.pieceIsSelected === false && state.squares[i][y] === "") {
+    if (state.pieceIsSelected === false && state.squares[i][y] === "") {
       return state;
     }
 
@@ -147,11 +147,10 @@ class ChessBoard extends React.Component {
     console.log("selkectX: ", state.selectedSquare.x);
     console.log("selectY", state.selectedSquare.y);
 
-
     let prevX = state.prevSelectedSquare.x;
     let prevY = state.prevSelectedSquare.y;
 
-    if(prevX === null && prevY === null){
+    if (prevX === null && prevY === null) {
       prevX = state.selectedSquare.x;
       prevY = state.selectedSquare.y;
     }
