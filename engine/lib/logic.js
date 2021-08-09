@@ -102,11 +102,11 @@ function isLegalMove(squares, selectedSquare, prevSelectedSquare) {
       break;
 
     case cnst.WHITE_KNIGHT:
-      moves = getKnightMoves(prevSelectedSquare.x, prevSelectedSquare.y);
+      moves = getKnightMoves(prevSelectedSquare.x, prevSelectedSquare.y, squares, cnst.WHITE_KNIGHT);
       isLegalMove = checkIfValid(moves, selectedSquare.x, selectedSquare.y);
       break;
     case cnst.BLACK_KNIGHT:
-      moves = getKnightMoves(prevSelectedSquare.x, prevSelectedSquare.y);
+      moves = getKnightMoves(prevSelectedSquare.x, prevSelectedSquare.y, squares, cnst.BLACK_KNIGHT);
       isLegalMove = checkIfValid(moves, selectedSquare.x, selectedSquare.y);
       break;
 
@@ -268,8 +268,11 @@ function checkIfValid(moves, i, y) {
   return isValid;
 }
 
-function getKnightMoves(i, y) {
-  return [
+function getKnightMoves(i, y, squares, pieceType) {
+  let moves = [];
+  let prunedMovesList = [];
+
+  let potentialMovesList =  [
     { x: i - 2, y: y + 1 },
     { x: i - 1, y: y + 2 },
     { x: i + 1, y: y + 2 },
@@ -279,6 +282,32 @@ function getKnightMoves(i, y) {
     { x: i - 1, y: y - 2 },
     { x: i - 2, y: y - 1 },
   ];
+  
+  //prune list for moves that go off the board and cause errors.
+  potentialMovesList.forEach(potentialMove => {
+    if (potentialMove.x < cnst.MIN_X || potentialMove.x > cnst.MAX_X || potentialMove.y < cnst.MIN_Y || potentialMove.y > cnst.MAX_Y) {
+      //do nothing because it is outside board constraints
+    }
+    else {
+      //otherwise its within restraints, so add it pruned list
+      prunedMovesList.push(potentialMove);
+    }
+  });
+
+  prunedMovesList.forEach((prunedMove) => {
+    if (isBlocking(prunedMove.x, prunedMove.y, squares)) {
+      //if there is a block, check if oppenent or own piece. if oppon, add the move and break loop
+      if (isBlockingOpp(prunedMove.x, prunedMove.y, squares, pieceType)) {
+        moves.push({ x: prunedMove.x, y: prunedMove.y });
+      } else {
+        // otherwise dont add to moves list
+      }
+    } else {
+      moves.push({ x: prunedMove.x, y: prunedMove.y });
+    }
+  });
+
+  return moves;
 }
 
 function getKingMoves(i, y, squares, pieceType, hasNotCastled) {
@@ -315,8 +344,6 @@ function getKingMoves(i, y, squares, pieceType, hasNotCastled) {
   });
 
   prunedMovesList.forEach((prunedMove) => {
-    if (pieceType === cnst.WHITE_KING) {
-    }
     if (isBlocking(prunedMove.x, prunedMove.y, squares)) {
       //if there is a block, check if oppenent or own piece. if oppon, add the move and break loop
       if (isBlockingOpp(prunedMove.x, prunedMove.y, squares, pieceType)) {
