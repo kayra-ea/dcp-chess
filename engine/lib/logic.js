@@ -79,6 +79,7 @@ function isLegalMove(squares, selectedSquare, prevSelectedSquare) {
       console.log("Getting WHITE pawn moves!!!!");
       //console.log("Pawn First move: ", isFirstPawnMove);
       moves = getPawnMoves(
+        squares,
         prevSelectedSquare.x,
         prevSelectedSquare.y,
         cnst.WHITE_PAWN,
@@ -91,6 +92,7 @@ function isLegalMove(squares, selectedSquare, prevSelectedSquare) {
     case cnst.BLACK_PAWN:
       pawnFirstMove = isFirstPawnMove(cnst.BLACK_PAWN, prevSelectedSquare.x);
       moves = getPawnMoves(
+        squares,
         prevSelectedSquare.x,
         prevSelectedSquare.y,
         cnst.BLACK_PAWN,
@@ -102,11 +104,21 @@ function isLegalMove(squares, selectedSquare, prevSelectedSquare) {
       break;
 
     case cnst.WHITE_KNIGHT:
-      moves = getKnightMoves(prevSelectedSquare.x, prevSelectedSquare.y, squares, cnst.WHITE_KNIGHT);
+      moves = getKnightMoves(
+        prevSelectedSquare.x,
+        prevSelectedSquare.y,
+        squares,
+        cnst.WHITE_KNIGHT
+      );
       isLegalMove = checkIfValid(moves, selectedSquare.x, selectedSquare.y);
       break;
     case cnst.BLACK_KNIGHT:
-      moves = getKnightMoves(prevSelectedSquare.x, prevSelectedSquare.y, squares, cnst.BLACK_KNIGHT);
+      moves = getKnightMoves(
+        prevSelectedSquare.x,
+        prevSelectedSquare.y,
+        squares,
+        cnst.BLACK_KNIGHT
+      );
       isLegalMove = checkIfValid(moves, selectedSquare.x, selectedSquare.y);
       break;
 
@@ -272,7 +284,7 @@ function getKnightMoves(i, y, squares, pieceType) {
   let moves = [];
   let prunedMovesList = [];
 
-  let potentialMovesList =  [
+  let potentialMovesList = [
     { x: i - 2, y: y + 1 },
     { x: i - 1, y: y + 2 },
     { x: i + 1, y: y + 2 },
@@ -282,13 +294,17 @@ function getKnightMoves(i, y, squares, pieceType) {
     { x: i - 1, y: y - 2 },
     { x: i - 2, y: y - 1 },
   ];
-  
+
   //prune list for moves that go off the board and cause errors.
-  potentialMovesList.forEach(potentialMove => {
-    if (potentialMove.x < cnst.MIN_X || potentialMove.x > cnst.MAX_X || potentialMove.y < cnst.MIN_Y || potentialMove.y > cnst.MAX_Y) {
+  potentialMovesList.forEach((potentialMove) => {
+    if (
+      potentialMove.x < cnst.MIN_X ||
+      potentialMove.x > cnst.MAX_X ||
+      potentialMove.y < cnst.MIN_Y ||
+      potentialMove.y > cnst.MAX_Y
+    ) {
       //do nothing because it is outside board constraints
-    }
-    else {
+    } else {
       //otherwise its within restraints, so add it pruned list
       prunedMovesList.push(potentialMove);
     }
@@ -585,21 +601,75 @@ function getQueenMoves(i, y, squares, pieceType) {
  *                  TODO: add diagonal moves for capturing a piece with the pawn.
  *
  */
-function getPawnMoves(i, y, c, isFirstMove) {
+function getPawnMoves(squares, i, y, c, isFirstMove) {
   let moves = [];
+  let cpy_squares = squares.slice();
 
-  if (c === cnst.WHITE_PAWN) {
-    moves.push({ x: i - 1, y: y });
+  try {
+    if (c === cnst.WHITE_PAWN) {
+      //check if there is a piece directly in front of the pawn.
+      if (cpy_squares[i - 1][y] === "" && cpy_squares[i - 1][y] !== undefined) {
+        moves.push({ x: i - 1, y: y });
+      }
 
-    if (isFirstMove) {
-      moves.push({ x: i - 2, y: y });
+      if (
+        cpy_squares[i - 1][y + 1] !== "" &&
+        cpy_squares[i - 1][y + 1] !== undefined
+      ) {
+        //check if the piece is the opponent
+        if (getPieceTeam(cpy_squares[i - 1][y + 1]) === "BLACK") {
+          moves.push({ x: i - 1, y: y + 1 });
+        }
+      }
+
+      if (
+        cpy_squares[i - 1][y - 1] !== "" &&
+        cpy_squares[i - 1][y - 1] !== undefined
+      ) {
+        //check if the piece is the opponent
+        if (getPieceTeam(cpy_squares[i - 1][y - 1]) === "BLACK") {
+          moves.push({ x: i - 1, y: y - 1 });
+        }
+      }
+
+      if (isFirstMove) {
+        moves.push({ x: i - 2, y: y });
+      }
+    } else if (c === cnst.BLACK_PAWN) {
+      //check if there is a piece directly in front of the pawn.
+      if (cpy_squares[i + 1][y] === "" && cpy_squares[i + 1][y] !== undefined) {
+        moves.push({ x: i + 1, y: y });
+      }
+
+      if (
+        cpy_squares[i + 1][y + 1] !== "" &&
+        cpy_squares[i + 1][y + 1] !== undefined
+      ) {
+        //check if the piece is the opponent
+        if (getPieceTeam(cpy_squares[i + 1][y + 1]) === "WHITE") {
+          moves.push({ x: i + 1, y: y + 1 });
+        }
+      }
+
+      if (
+        cpy_squares[i + 1][y - 1] !== "" &&
+        cpy_squares[i + 1][y - 1] !== undefined
+      ) {
+        //check if the piece is the opponent
+        if (getPieceTeam(cpy_squares[i + 1][y - 1]) === "WHITE") {
+          moves.push({ x: i + 1, y: y - 1 });
+        }
+      }
+
+      if (isFirstMove) {
+        moves.push({ x: i + 2, y: y });
+      }
     }
-  } else if (c === cnst.BLACK_PAWN) {
-    moves.push({ x: i + 1, y: y });
-
-    if (isFirstMove) {
-      moves.push({ x: i + 2, y: y });
-    }
+  } catch (error) {
+    console.error(
+      `Error in getting pawn moves, can be discarded silently\n`
+      /* error*/
+    );
   }
 
   return moves;
