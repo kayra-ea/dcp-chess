@@ -10,6 +10,8 @@
  *
  */
 
+const cnst = require("../common/constants.js");
+
 /**
  *  @description    This function returns the value of any given chess board.
  *
@@ -17,6 +19,14 @@
  */
 exports.getBoardValue = function getBoardValue(board) {
   let value = 0;
+
+  // 1. Tally up the values of all the pieces
+  for (let i of board) {
+    for (let j of i) {
+      if (j !== "") {
+      }
+    }
+  }
 
   return 0;
 };

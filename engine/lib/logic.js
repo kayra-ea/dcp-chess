@@ -20,6 +20,7 @@ exports.movePiece = function movePiece(
   squares,
   selectedSquare,
   prevSelectedSquare,
+  isPlayerTurn,
   reqStatus
 ) {
   let cpy_squares = squares.slice();
@@ -27,9 +28,31 @@ exports.movePiece = function movePiece(
   let cpy_prevSelectedSquare = Object.assign({}, prevSelectedSquare);
   const pieceToMove =
     cpy_squares[cpy_prevSelectedSquare.x][cpy_prevSelectedSquare.y];
+  const pieceColor = getPieceTeam(pieceToMove);
 
-    test = getAllMoves(squares,'BLACK');
-    console.log('Moves for Black team', test);
+  test = getAllMoves(squares, "BLACK");
+  console.log("Moves for Black team", test);
+
+  if (pieceColor === "WHITE") {
+    if (isPlayerTurn === false) {
+      reqStatus = "COULDNOTMOVE";
+
+      return {
+        squares: cpy_squares,
+        reqStatus: reqStatus,
+      };
+    }
+  } else if (pieceColor === "BLACK") {
+    if (isPlayerTurn === true) {
+      reqStatus = "COULDNOTMOVE";
+
+      return {
+        squares: cpy_squares,
+        reqStatus: reqStatus,
+      };
+    }
+  }
+
   try {
     let allow = isLegalMove(
       cpy_squares,
@@ -38,10 +61,6 @@ exports.movePiece = function movePiece(
     );
 
     if (allow === true) {
-      console.log(`pieceToMove: `, pieceToMove);
-
-      //assert(!(pieceToMove === ''), `Error - cannot move a non piece`);
-      // move the piece
       cpy_squares[cpy_prevSelectedSquare.x][cpy_prevSelectedSquare.y] = "";
       cpy_squares[cpy_selectedSquare.x][cpy_selectedSquare.y] = pieceToMove;
 
@@ -83,8 +102,6 @@ function isLegalMove(squares, selectedSquare, prevSelectedSquare) {
         cnst.WHITE_PAWN,
         pawnFirstMove
       );
-      console.log("Getting WHITE pawn moves!!!!");
-      console.log(`The moves the WHITE pawn can make are: `, moves);
       isLegalMove = checkIfValid(moves, selectedSquare.x, selectedSquare.y);
       break;
 
@@ -97,8 +114,6 @@ function isLegalMove(squares, selectedSquare, prevSelectedSquare) {
         cnst.BLACK_PAWN,
         pawnFirstMove
       );
-      console.log("Getting BLACK pawn moves!!!!");
-      console.log(`The moves the BLACK pawn can make are: `, moves);
       isLegalMove = checkIfValid(moves, selectedSquare.x, selectedSquare.y);
       break;
 
@@ -109,8 +124,6 @@ function isLegalMove(squares, selectedSquare, prevSelectedSquare) {
         squares,
         cnst.WHITE_KNIGHT
       );
-      // console.log("Getting WHITE knight moves!!!!");
-      // console.log(`The moves the WHITE knight can make are: `, moves);
       isLegalMove = checkIfValid(moves, selectedSquare.x, selectedSquare.y);
       break;
     case cnst.BLACK_KNIGHT:
@@ -152,6 +165,7 @@ function isLegalMove(squares, selectedSquare, prevSelectedSquare) {
       );
       isLegalMove = checkIfValid(moves, selectedSquare.x, selectedSquare.y);
       break;
+
     case cnst.BLACK_ROOK:
       moves = getRookMoves(
         prevSelectedSquare.x,
@@ -171,6 +185,7 @@ function isLegalMove(squares, selectedSquare, prevSelectedSquare) {
       );
       isLegalMove = checkIfValid(moves, selectedSquare.x, selectedSquare.y);
       break;
+
     case cnst.BLACK_QUEEN:
       moves = getQueenMoves(
         prevSelectedSquare.x,
@@ -190,6 +205,7 @@ function isLegalMove(squares, selectedSquare, prevSelectedSquare) {
       );
       isLegalMove = checkIfValid(moves, selectedSquare.x, selectedSquare.y);
       break;
+
     case cnst.BLACK_KING:
       moves = getKingMoves(
         prevSelectedSquare.x,
@@ -602,7 +618,7 @@ function getQueenMoves(i, y, squares, pieceType) {
  *                  TODO: add diagonal moves for capturing a piece with the pawn.
  *
  */
-function getPawnMoves( i, y, squares, c, isFirstMove) {
+function getPawnMoves(i, y, squares, c, isFirstMove) {
   let moves = [];
   let cpy_squares = squares.slice();
 
@@ -766,13 +782,11 @@ function getAllPieceMoves(i, y, squares, piece) {
       break;
   }
 
-  if (moves.length === 0){
-    console.log(moves, 'No moves available for this piece')
-  }
-  else console.log(moves);
+  if (moves.length === 0) {
+    console.log(moves, "No moves available for this piece");
+  } else console.log(moves);
   return moves;
 }
-
 
 function getAllMoves(squares, team) {
   let teamMoves = [];
@@ -782,7 +796,6 @@ function getAllMoves(squares, team) {
   //loop through entire board
   for (i = 0; i <= 7; i++) {
     for (y = 0; y <= 7; y++) {
-
       //if empty square or oppenent piece, continue to next square
       if (squares[i][y] === "" || getPieceTeam(squares[i][y]) !== team) {
         //do nothing
@@ -791,16 +804,16 @@ function getAllMoves(squares, team) {
       //otherwise piece is on same team, so get its moves and add to team moves
       else if (getPieceTeam(squares[i][y]) === team) {
         selectedPiece = squares[i][y];
-        console.log('on piece ', i, y, selectedPiece);
+        console.log("on piece ", i, y, selectedPiece);
         pieceMoves = getAllPieceMoves(i, y, squares, selectedPiece);
 
         if (pieceMoves.length !== 0) {
-          console.log('pushed piece moves for ', i, y, selectedPiece);
+          console.log("pushed piece moves for ", i, y, selectedPiece);
           teamMoves.push({ piece: selectedPiece, moves: pieceMoves });
         }
-
-      };
-    };
-  };
+      }
+    }
+  }
   return teamMoves;
 }
+

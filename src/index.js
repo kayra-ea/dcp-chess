@@ -88,12 +88,7 @@ class ChessBoard extends React.Component {
   callEngineAPI(state) {
     let msg = {};
     msg.state = Object.assign({}, state);
-    console.log("called callEngineApi");
-
-    msg.msgStatus = {
-      reqStatus: null,
-      reqStatusCode: NaN,
-    };
+    msg.reqStatus = null;
 
     fetch("http://localhost:9000/engineAPI", {
       method: "POST",
@@ -106,6 +101,7 @@ class ChessBoard extends React.Component {
       .then((response) => {
         console.log("GOT THE RESPONSE: ");
         console.log(response.state);
+        console.log(response.reqStatus);
 
         response.state = this.cleanUpState(response.state);
         this.setState(response.state);
@@ -136,6 +132,7 @@ class ChessBoard extends React.Component {
         squares: state.squares,
         selectedSquare: state.selectedSquare, // the square to move to.
         prevSelectedSquare: state.prevSelectedSquare, //the square to move from.
+        isPlayerTurn: state.isPlayerTurn,
       };
 
       this.callEngineAPI(state);
@@ -198,7 +195,8 @@ const bp = board('init');
   }
 
   render() {
-    const status = "Next player: X";
+    const player = this.state.isPlayerTurn ? "WHITE" : "BLACK";
+    const status = `Next player: ${player}`;
 
     return (
       <div>

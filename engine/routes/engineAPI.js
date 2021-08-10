@@ -22,35 +22,34 @@ router.get("/", (req, res, next) => {
  */
 router.post("/", (req, res, next) => {
   let msg = Object.assign({}, req.body);
-
-  let state = msg.state;
-  let { functionCall, functionCallArgs } = state;
-  let { reqStatus, reqStatusCode } = msg.msgStatus;
+  let { state, reqStatus } = msg;
+  let { functionCall, functionCallArgs, isPlayerTurn } = state;
 
   switch (functionCall) {
     case "movePiece":
-      debugger;
       let ret = logic.movePiece(...Object.values(functionCallArgs), reqStatus);
-      debugger;
       reqStatus = ret.reqStatus;
       state.squares = ret.squares;
 
+      if (reqStatus === "SUCCESS") {
+        state.isPlayerTurn = !state.isPlayerTurn;
+      }
+      break;
+
+    case "PlayAITurn":
       break;
 
     default:
+      reqStatus = "INVALIDCALL";
+      break;
   }
 
-  if (reqStatus === "SUCCESS") {
-    reqStatusCode = 6000;
-  }
+  msg.reqStatus = reqStatus;
 
-  msg.msgStatus.reqStatus = reqStatus;
-  msg.msgStatus.reqStatusCode = reqStatusCode;
-
-  console.log(`reqStatus: `, reqStatus);
-  console.log(`reqStatusCode: `, reqStatusCode);
-  console.log(`state.squares: `, state.squares);
-  console.log(`msg: `, msg);
+  // console.log(`reqStatus: `, reqStatus);
+  // console.log(`reqStatusCode: `, reqStatusCode);
+  // console.log(`state.squares: `, state.squares);
+  // console.log(`msg: `, msg);
 
   res.send(msg); //echo the result back to the client.
 });
