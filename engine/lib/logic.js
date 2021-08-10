@@ -76,8 +76,6 @@ function isLegalMove(squares, selectedSquare, prevSelectedSquare) {
   switch (piece) {
     case cnst.WHITE_PAWN:
       pawnFirstMove = isFirstPawnMove(cnst.WHITE_PAWN, prevSelectedSquare.x);
-      console.log("Getting WHITE pawn moves!!!!");
-      //console.log("Pawn First move: ", isFirstPawnMove);
       moves = getPawnMoves(
         prevSelectedSquare.x,
         prevSelectedSquare.y,
@@ -85,6 +83,7 @@ function isLegalMove(squares, selectedSquare, prevSelectedSquare) {
         cnst.WHITE_PAWN,
         pawnFirstMove
       );
+      console.log("Getting WHITE pawn moves!!!!");
       console.log(`The moves the WHITE pawn can make are: `, moves);
       isLegalMove = checkIfValid(moves, selectedSquare.x, selectedSquare.y);
       break;
@@ -110,6 +109,8 @@ function isLegalMove(squares, selectedSquare, prevSelectedSquare) {
         squares,
         cnst.WHITE_KNIGHT
       );
+      // console.log("Getting WHITE knight moves!!!!");
+      // console.log(`The moves the WHITE knight can make are: `, moves);
       isLegalMove = checkIfValid(moves, selectedSquare.x, selectedSquare.y);
       break;
     case cnst.BLACK_KNIGHT:
@@ -633,7 +634,10 @@ function getPawnMoves( i, y, squares, c, isFirstMove) {
       }
 
       if (isFirstMove) {
-        moves.push({ x: i - 2, y: y });
+        //check if a piece is blocking the way.
+        if (cpy_squares[i - 1][y] === "" && cpy_squares[i - 2][y] === "") {
+          moves.push({ x: i - 2, y: y });
+        }
       }
     } else if (c === cnst.BLACK_PAWN) {
       //check if there is a piece directly in front of the pawn.
@@ -662,7 +666,10 @@ function getPawnMoves( i, y, squares, c, isFirstMove) {
       }
 
       if (isFirstMove) {
-        moves.push({ x: i + 2, y: y });
+        //check if a piece is blocking the way.
+        if (cpy_squares[i + 1][y] === "" && cpy_squares[i + 2][y] === "") {
+          moves.push({ x: i + 2, y: y });
+        }
       }
     }
   } catch (error) {
