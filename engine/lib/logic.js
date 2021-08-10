@@ -28,7 +28,8 @@ exports.movePiece = function movePiece(
   const pieceToMove =
     cpy_squares[cpy_prevSelectedSquare.x][cpy_prevSelectedSquare.y];
 
-  debugger;
+    test = getAllMoves(squares,'BLACK');
+    console.log('Moves for Black team', test);
   try {
     let allow = isLegalMove(
       cpy_squares,
@@ -71,7 +72,6 @@ function isLegalMove(squares, selectedSquare, prevSelectedSquare) {
   let isLegalMove = false;
   let moves = [];
   let pawnFirstMove;
-  debugger;
 
   switch (piece) {
     case cnst.WHITE_PAWN:
@@ -79,9 +79,9 @@ function isLegalMove(squares, selectedSquare, prevSelectedSquare) {
       console.log("Getting WHITE pawn moves!!!!");
       //console.log("Pawn First move: ", isFirstPawnMove);
       moves = getPawnMoves(
-        squares,
         prevSelectedSquare.x,
         prevSelectedSquare.y,
+        squares,
         cnst.WHITE_PAWN,
         pawnFirstMove
       );
@@ -92,9 +92,9 @@ function isLegalMove(squares, selectedSquare, prevSelectedSquare) {
     case cnst.BLACK_PAWN:
       pawnFirstMove = isFirstPawnMove(cnst.BLACK_PAWN, prevSelectedSquare.x);
       moves = getPawnMoves(
-        squares,
         prevSelectedSquare.x,
         prevSelectedSquare.y,
+        squares,
         cnst.BLACK_PAWN,
         pawnFirstMove
       );
@@ -281,6 +281,7 @@ function checkIfValid(moves, i, y) {
 }
 
 function getKnightMoves(i, y, squares, pieceType) {
+  debugger;
   let moves = [];
   let prunedMovesList = [];
 
@@ -310,6 +311,7 @@ function getKnightMoves(i, y, squares, pieceType) {
     }
   });
 
+  debugger;
   prunedMovesList.forEach((prunedMove) => {
     if (isBlocking(prunedMove.x, prunedMove.y, squares)) {
       //if there is a block, check if oppenent or own piece. if oppon, add the move and break loop
@@ -323,15 +325,13 @@ function getKnightMoves(i, y, squares, pieceType) {
     }
   });
 
+  debugger;
   return moves;
 }
 
 function getKingMoves(i, y, squares, pieceType, hasNotCastled) {
   let moves = [];
   let prunedMovesList = [];
-  if (pieceType === cnst.WHITE_KING) {
-    debugger;
-  }
 
   let potentialMovesList = [
     { x: i - 1, y: y + 1 },
@@ -601,7 +601,7 @@ function getQueenMoves(i, y, squares, pieceType) {
  *                  TODO: add diagonal moves for capturing a piece with the pawn.
  *
  */
-function getPawnMoves(squares, i, y, c, isFirstMove) {
+function getPawnMoves( i, y, squares, c, isFirstMove) {
   let moves = [];
   let cpy_squares = squares.slice();
 
@@ -697,4 +697,103 @@ function isFirstPawnMove(pawnColor, x) {
   } else {
     throw new Error(`Not a pawn being selected for isFirstPawnMove`);
   }
+}
+
+function getAllPieceMoves(i, y, squares, piece) {
+  pieceType = getPieceTeam(piece);
+  let moves = [];
+
+  switch (piece) {
+    case cnst.WHITE_PAWN:
+      pawnFirstMove = isFirstPawnMove(cnst.WHITE_PAWN, i);
+      moves = getPawnMoves(i, y, squares, cnst.WHITE_PAWN, pawnFirstMove);
+      break;
+
+    case cnst.BLACK_PAWN:
+      pawnFirstMove = isFirstPawnMove(cnst.BLACK_PAWN, i);
+      moves = getPawnMoves(i, y, squares, cnst.BLACK_PAWN, pawnFirstMove);
+      break;
+
+    case cnst.WHITE_KNIGHT:
+      moves = getKnightMoves(i, y, squares, pieceType);
+      break;
+
+    case cnst.BLACK_KNIGHT:
+      moves = getKnightMoves(i, y, squares, pieceType);
+      break;
+
+    case cnst.WHITE_BISHOP:
+      moves = getBishopMoves(i, y, squares, pieceType);
+      break;
+
+    case cnst.BLACK_BISHOP:
+      moves = getBishopMoves(i, y, squares, pieceType);
+      break;
+
+    case cnst.WHITE_ROOK:
+      moves = getRookMoves(i, y, squares, pieceType);
+      break;
+
+    case cnst.BLACK_ROOK:
+      moves = getRookMoves(i, y, squares, pieceType);
+      break;
+
+    case cnst.WHITE_QUEEN:
+      moves = getQueenMoves(i, y, squares, pieceType);
+      break;
+
+    case cnst.BLACK_QUEEN:
+      moves = getQueenMoves(i, y, squares, pieceType);
+      break;
+
+    case cnst.WHITE_KING:
+      moves = getKingMoves(i, y, squares, pieceType);
+      break;
+
+    case cnst.BLACK_KING:
+      moves = getKingMoves(i, y, squares, pieceType);
+      break;
+
+    default:
+      moves = [];
+      break;
+  }
+
+  if (moves.length === 0){
+    console.log(moves, 'No moves available for this piece')
+  }
+  else console.log(moves);
+  return moves;
+}
+
+
+function getAllMoves(squares, team) {
+  let teamMoves = [];
+  let selectedPiece;
+  let pieceMoves;
+
+  //loop through entire board
+  for (i = 0; i <= 7; i++) {
+    for (y = 0; y <= 7; y++) {
+
+      //if empty square or oppenent piece, continue to next square
+      if (squares[i][y] === "" || getPieceTeam(squares[i][y]) !== team) {
+        //do nothing
+      }
+
+      //otherwise piece is on same team, so get its moves and add to team moves
+      else if (getPieceTeam(squares[i][y]) === team) {
+        selectedPiece = squares[i][y];
+        console.log('on piece ', i, y, selectedPiece);
+        pieceMoves = getAllPieceMoves(i, y, squares, selectedPiece);
+
+        if (pieceMoves.length !== 0) {
+          console.log('pushed piece moves for ', i, y, selectedPiece);
+          teamMoves.push({ piece: selectedPiece, moves: pieceMoves });
+        }
+
+      };
+    };
+  };
+  return teamMoves;
 }
