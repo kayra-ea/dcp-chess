@@ -42,8 +42,8 @@ class ChessBoard extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      functionCall: null,
-      functionCallArgs: null,
+      //functionCall: null,
+      //functionCallArgs: null,
       squares: this.props.board.squares,
       colour: this.props.board.colours,
       selectedSquare: { x: null, y: null },
@@ -51,6 +51,9 @@ class ChessBoard extends React.Component {
       pieceIsSelected: false,
       isPlayerTurn: true,
     };
+
+    this.functionCall = null;
+    this.functionCallArgs = null;
   }
 
   //reset colors, is piece selected,etc now that the move has been played
@@ -79,16 +82,17 @@ class ChessBoard extends React.Component {
     state.prevSelectedSquare.y = null;
     state.selectedSquare.x = null;
     state.selectedSquare.y = null;
-    state.functionCall = null;
-    state.functionCallArgs = null;
 
     return state;
   }
 
-  callEngineAPI(state) {
+  callEngineAPI(state, functionCall, functionCallArgs) {
     let msg = {};
     msg.state = Object.assign({}, state);
     msg.reqStatus = null;
+
+    msg.functionCall = functionCall;
+    msg.functionCallArgs = functionCallArgs;
 
     fetch("http://localhost:9000/engineAPI", {
       method: "POST",
@@ -111,6 +115,8 @@ class ChessBoard extends React.Component {
 
   handleClick(i, y) {
     let state = Object.assign({}, this.state);
+    let functionCall = this.functionCall;
+    let functionCallArgs = this.functionCallArgs;
 
     //check to make sure they haven't selected a square without first selecting a piece
     if (state.pieceIsSelected === false && state.squares[i][y] === "") {
@@ -127,15 +133,15 @@ class ChessBoard extends React.Component {
 
     // If a piece was previously selected, try to move the piece to the current square.
     if (state.pieceIsSelected) {
-      state.functionCall = "movePiece";
-      state.functionCallArgs = {
+      functionCall = "movePiece";
+      functionCallArgs = {
         squares: state.squares,
         selectedSquare: state.selectedSquare, // the square to move to.
         prevSelectedSquare: state.prevSelectedSquare, //the square to move from.
         isPlayerTurn: state.isPlayerTurn,
       };
 
-      this.callEngineAPI(state);
+      this.callEngineAPI(state, functionCall, functionCallArgs);
     }
 
     console.log("prevX: ", state.prevSelectedSquare.x);
@@ -159,29 +165,7 @@ class ChessBoard extends React.Component {
       state.pieceIsSelected = false;
     }
 
-    // console.log(i, " : ", y);
-    // console.log(`state.colour: `, state.colour);
-
-    //state.colour = board.colours;
-
     this.setState(state);
-
-    /*const squares = this.state.squares.slice(); //shallow copy
-    const colour = this.resetColour(); //shallow copy
-const bp = board('init');
-    let pieceIsSelected = this.state.pieceIsSelected;
-  
-    
-    colour[i][y] = 'sq-selected';
-   
-    this.setState({
-      squares: squares,
-      colour: colour, 
-      selectedSquare: {x: i, y: y},
-      pieceIsSelected: pieceIsSelected,
-      isPlayerTurn: true,
-    });
-    */
   }
 
   renderSquare(i, y) {
