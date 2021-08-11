@@ -30,8 +30,17 @@ exports.movePiece = function movePiece(
     cpy_squares[cpy_prevSelectedSquare.x][cpy_prevSelectedSquare.y];
   const pieceColor = getPieceTeam(pieceToMove);
 
-  test = getAllMoves(squares, "BLACK");
+  test = this.getAllMoves(squares, "BLACK");
   console.log("Moves for Black team", test);
+
+  let random1 = Math.floor(Math.random() * test.length);
+  let move = test[random1].moves;
+
+  let random2 = Math.floor(Math.random() * move.length);
+  let damove = move[random2];
+
+  console.log(`random1`, random1);
+  console.log(`rando move`, damove);
 
   if (pieceColor === "WHITE") {
     if (isPlayerTurn === false) {
@@ -783,12 +792,21 @@ function getAllPieceMoves(i, y, squares, piece) {
   }
 
   if (moves.length === 0) {
-    console.log(moves, "No moves available for this piece");
-  } else console.log(moves);
+    //console.log(moves, "No moves available for this piece");
+  } else {
+    //console.log(moves);
+  }
+
   return moves;
 }
 
-function getAllMoves(squares, team) {
+/**
+ *  @description    This function returns all the moves for a given color (BLACK/WHITE) for each piece.
+ *
+ *  @param
+ *  @param
+ */
+exports.getAllMoves = function getAllMoves(squares, team) {
   let teamMoves = [];
   let selectedPiece;
   let pieceMoves;
@@ -804,16 +822,15 @@ function getAllMoves(squares, team) {
       //otherwise piece is on same team, so get its moves and add to team moves
       else if (getPieceTeam(squares[i][y]) === team) {
         selectedPiece = squares[i][y];
-        console.log("on piece ", i, y, selectedPiece);
+        //console.log("on piece ", i, y, selectedPiece);
         pieceMoves = getAllPieceMoves(i, y, squares, selectedPiece);
 
         if (pieceMoves.length !== 0) {
-          console.log("pushed piece moves for ", i, y, selectedPiece);
+          //console.log("pushed piece moves for ", i, y, selectedPiece);
           teamMoves.push({ piece: selectedPiece, moves: pieceMoves });
         }
       }
     }
   }
   return teamMoves;
-}
-
+};

@@ -15,6 +15,23 @@ exports.engineMove = function engineMove() {
 };
 
 /**
+ *  @description This function makes a random move for the chess engine.
+ */ 
+function randomMove(squares, team){
+  let allmoves = logic.getAllMoves(squares, team);
+
+  let random1 = Math.floor(Math.random() * allmoves.length);
+  let move = allmoves[random1].moves;
+
+  let random2 = Math.floor(Math.random() * move.length);
+
+  let damove = move[random2];
+  
+  return 0;
+}
+
+
+/**
  *  @description  Implements the minimax algorithm in the context of a chess engine. The board argument is the same 2d array for chars that represents a node of the minimax search tree.
  *
  *  @param

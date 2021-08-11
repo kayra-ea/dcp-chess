@@ -23,9 +23,53 @@ exports.getBoardValue = function getBoardValue(board) {
   // 1. Tally up the values of all the pieces
   for (let i of board) {
     for (let j of i) {
-      if (j !== "") {
+      switch (j) {
+        case cnst.BLACK_PAWN:
+          value -= cnst.PAWN_VALUE;
+          break;
+        case cnst.WHITE_PAWN:
+          value += cnst.PAWN_VALUE;
+          break;
+
+        case cnst.BLACK_KNIGHT:
+          value -= cnst.KNIGHT_VALUE;
+          break;
+        case cnst.WHITE_KNIGHT:
+          value += cnst.KNIGHT_VALUE;
+          break;
+
+        case cnst.BLACK_BISHOP:
+          value -= cnst.BISHOP_VALUE;
+          break;
+        case cnst.WHITE_BISHOP:
+          value += cnst.BISHOP_VALUE;
+          break;
+
+        case cnst.BLACK_ROOK:
+          value -= cnst.ROOK_VALUE;
+          break;
+        case cnst.WHITE_ROOK:
+          value += cnst.ROOK_VALUE;
+          break;
+
+        case cnst.BLACK_QUEEN:
+          value -= cnst.QUEEN_VALUE;
+          break;
+        case cnst.WHITE_QUEEN:
+          value += cnst.QUEEN_VALUE;
+          break;
       }
     }
+
+    // 2. King is castled
+
+    // 3. King is in check
+
+    // 4. Space controlled by all pieces.
+
+    // 5. Pieces under direct attack
+
+    // 6. Knight is in central position
   }
 
   return 0;
