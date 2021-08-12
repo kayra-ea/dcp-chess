@@ -60,19 +60,40 @@ exports.getBoardValue = function getBoardValue(board) {
           break;
       }
     }
+  }
+  // 2. King is castled
 
-    // 2. King is castled
+  // 3. King is in check
 
-    // 3. King is in check
+  // 4. Space controlled by all pieces.
 
-    // 4. Space controlled by all pieces.
+  // 5. Pieces under direct attack
 
-    // 5. Pieces under direct attack
+  // 6. Knight is in central position
+  for (let i = 0; i < board.length; i++) {
+    for (let j = 0; j < board[i].length; j++) {
+      let piece = null;
+      if (board[i][j] === "") {
+        continue;
+      } else {
+        piece = board[i][j];
+      }
 
-    // 6. Knight is in central position
+      if (piece !== cnst.WHITE_KNIGHT && piece !== cnst.BLACK_KNIGHT) {
+        continue;
+      } else if (piece === cnst.WHITE_KNIGHT) {
+        if (i > 1 && i < 6 && j > 1 && j < 6) {
+          value += 5;
+        }
+      } else if (piece === cnst.BLACK_KNIGHT) {
+        if (i > 1 && i < 6 && j > 1 && j < 6) {
+          value -= 5;
+        }
+      }
+    }
   }
 
-  return 0;
+  return value;
 };
 
 /**

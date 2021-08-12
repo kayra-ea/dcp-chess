@@ -14,7 +14,6 @@ import ReactDOM from "react-dom";
 import "./index.css";
 
 const { board } = require("./lib/board.js");
-const bp = board.colours.slice();
 
 /**
  *  @description    - This is a funciton compoment thats returns an HTML button object that describes a square on the chess board.
@@ -42,8 +41,6 @@ class ChessBoard extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      //functionCall: null,
-      //functionCallArgs: null,
       squares: this.props.board.squares,
       colour: this.props.board.colours,
       selectedSquare: { x: null, y: null },
@@ -56,25 +53,8 @@ class ChessBoard extends React.Component {
     this.functionCallArgs = null;
   }
 
-  //reset colors, is piece selected,etc now that the move has been played
   cleanUpState(state) {
-    //reset color, couldn't figure out a simpler way to do it but I do know this probably aint the best way
-    if ((state.prevSelectedSquare.x + state.prevSelectedSquare.y) % 2 === 0) {
-      board.colours[state.prevSelectedSquare.x][state.prevSelectedSquare.y] =
-        "sq-dark";
-    } else {
-      board.colours[state.prevSelectedSquare.x][state.prevSelectedSquare.y] =
-        "sq-light";
-    }
-
-    if ((state.selectedSquare.x + state.selectedSquare.y) % 2 === 0) {
-      board.colours[state.selectedSquare.x][state.selectedSquare.y] = "sq-dark";
-    } else {
-      board.colours[state.selectedSquare.x][state.selectedSquare.y] =
-        "sq-light";
-    }
-
-    state.colour = board.colours;
+    state.colour = board().colours;
 
     //reset selected pieces
     state.pieceIsSelected = false;
@@ -109,8 +89,29 @@ class ChessBoard extends React.Component {
 
         response.state = this.cleanUpState(response.state);
         this.setState(response.state);
+        this.handleResponse();
       })
       .catch((err) => console.log(err));
+  }
+
+  handleResponse() {
+    let state = Object.assign({}, this.state);
+
+    if (state.isPlayerTurn === false) {
+      console.log("Making Engine move now:");
+      let functionCall = "playAITurn";
+      let functionCallArgs = {
+        moveType: "randomMove",
+        squares: state.squares,
+        args: {},
+      };
+
+      console.log("state: ", state);
+      console.log("functionCall: ", functionCall);
+      console.log("functionCallArgs: ", functionCallArgs);
+
+      this.callEngineAPI(state, functionCall, functionCallArgs);
+    }
   }
 
   handleClick(i, y) {
@@ -128,10 +129,10 @@ class ChessBoard extends React.Component {
     state.selectedSquare = { x: i, y: y };
 
     //highlight the selected square;
-    state.colour = board.colours.slice();
+    state.colour = board().colours.slice();
     state.colour[i][y] = "sq-selected";
 
-    // If a piece was previously selected, try to move the piece to the current square.
+    // If a piece was previously selected, try to move the piece to the current square
     if (state.pieceIsSelected) {
       functionCall = "movePiece";
       functionCallArgs = {
@@ -143,12 +144,6 @@ class ChessBoard extends React.Component {
 
       this.callEngineAPI(state, functionCall, functionCallArgs);
     }
-
-    console.log("prevX: ", state.prevSelectedSquare.x);
-    console.log("prevY", state.prevSelectedSquare.y);
-
-    console.log("selkectX: ", state.selectedSquare.x);
-    console.log("selectY", state.selectedSquare.y);
 
     let prevX = state.prevSelectedSquare.x;
     let prevY = state.prevSelectedSquare.y;
@@ -282,7 +277,7 @@ class Game extends React.Component {
       <div className="game">
         <div className="title">Welcome to DCP Chess!</div>
         <div className="game-board">
-          <ChessBoard board={board} bp={bp} />
+          <ChessBoard board={board()} />
         </div>
         <div className="game-info">
           <div>{"TEST"}</div>

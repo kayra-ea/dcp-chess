@@ -10,24 +10,67 @@
 
 const logic = require("./logic");
 
-exports.engineMove = function engineMove() {
-  return 0;
+exports.engineMove = function engineMove(moveType, squares, args, reqStatus) {
+  let cpy_squares = squares.slice();
+
+  switch(moveType){
+    case "randomMove":
+      cpy_squares = randomMove(squares, "BLACK");
+      reqStatus = "SUCCESS";
+      break;
+
+    case "miniMax":
+      cpy_squares = miniMax(squares, 5, true);
+      reqStatus = "SUCCESS";
+      break;
+
+    case "abPruning":
+      cpy_sqauares = abPruning(squares, 10, a, b, true);
+      reqStatus = "SUCCESS";
+      break;
+
+    default:
+      console.error("Not valid engine move");
+      reqStatus = "FAILED";
+      break;
+
+  }
+  
+  return {
+    squares: cpy_squares,
+    reqStatus: reqStatus,
+  };
+
 };
 
 /**
  *  @description This function makes a random move for the chess engine.
  */ 
 function randomMove(squares, team){
-  let allmoves = logic.getAllMoves(squares, team);
+  let cpy_squares = squares.slice();
+  
+  let allmoves = logic.getAllMoves(cpy_squares, team);
 
   let random1 = Math.floor(Math.random() * allmoves.length);
   let move = allmoves[random1].moves;
 
+
   let random2 = Math.floor(Math.random() * move.length);
 
   let damove = move[random2];
+ 
+
+  console.log("damove: ", damove);
+  let pieceToMove = allmoves[random1].piece;
+  let pieceX = allmoves[random1].pos.x;
+  let pieceY = allmoves[random1].pos.y;
+
+  //now move da piece to dat square.
   
-  return 0;
+  cpy_squares[pieceX][pieceY] = "";
+  cpy_squares[damove.x][damove.y] = pieceToMove;
+
+  return cpy_squares;
 }
 
 

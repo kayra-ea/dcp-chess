@@ -9,6 +9,8 @@
  */
 
 const logic = require("../lib/logic");
+const engine = require("../lib/engine");
+const heur = require("../lib/board-heuristics");
 
 var express = require("express");
 var router = express.Router();
@@ -23,19 +25,34 @@ router.get("/", (req, res, next) => {
 router.post("/", (req, res, next) => {
   let msg = Object.assign({}, req.body);
   let { state, reqStatus, functionCall, functionCallArgs } = msg;
+  let ret;
 
   switch (functionCall) {
     case "movePiece":
-      let ret = logic.movePiece(...Object.values(functionCallArgs), reqStatus);
+      ret = logic.movePiece(...Object.values(functionCallArgs), reqStatus);
       reqStatus = ret.reqStatus;
       state.squares = ret.squares;
+      //let value = heur.getBoardValue(ret.squares);
+      //console.log("VALUE::::", value);
 
       if (reqStatus === "SUCCESS") {
         state.isPlayerTurn = !state.isPlayerTurn;
       }
       break;
 
-    case "PlayAITurn":
+    case "playAITurn":
+      setTimeout(() => {
+        console.log("World!");
+      }, 2000);
+      ret = engine.engineMove(...Object.values(functionCallArgs), reqStatus);
+
+      reqStatus = ret.reqStatus;
+      state.squares = ret.squares;
+
+      console.log();
+      if (reqStatus === "SUCCESS") {
+        state.isPlayerTurn = !state.isPlayerTurn;
+      }
       break;
 
     default:
@@ -46,7 +63,6 @@ router.post("/", (req, res, next) => {
   msg.reqStatus = reqStatus;
 
   // console.log(`reqStatus: `, reqStatus);
-  // console.log(`reqStatusCode: `, reqStatusCode);
   // console.log(`state.squares: `, state.squares);
   // console.log(`msg: `, msg);
 
