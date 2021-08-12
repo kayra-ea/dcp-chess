@@ -16,7 +16,7 @@ const cnst = require('../common/constants.js');
 
 exports.board = {};
 
-exports.board.squares = [[cnst.BLACK_ROOK, cnst.BLACK_KNIGHT, cnst.BLACK_BISHOP, cnst.BLACK_KING, cnst.BLACK_QUEEN, cnst.BLACK_BISHOP,cnst.BLACK_KNIGHT, cnst.BLACK_ROOK],
+exports.board.squares = [[cnst.BLACK_ROOK, cnst.BLACK_KNIGHT, cnst.BLACK_BISHOP, cnst.BLACK_QUEEN, cnst.BLACK_KING, cnst.BLACK_BISHOP,cnst.BLACK_KNIGHT, cnst.BLACK_ROOK],
               [cnst.BLACK_PAWN, cnst.BLACK_PAWN, cnst.BLACK_PAWN, cnst.BLACK_PAWN, cnst.BLACK_PAWN, cnst.BLACK_PAWN, cnst.BLACK_PAWN, cnst.BLACK_PAWN,],
               ['', '', '', '', '', '', '', ''],
               ['', '', '', '', '', '', '', ''],
