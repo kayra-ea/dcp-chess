@@ -24,17 +24,38 @@ exports.movePiece = function movePiece(
   reqStatus
 ) {
   let cpy_squares = squares.slice();
+  let currentSquares = JSON.parse(JSON.stringify(squares));
   let cpy_selectedSquare = Object.assign({}, selectedSquare);
   let cpy_prevSelectedSquare = Object.assign({}, prevSelectedSquare);
   const pieceToMove =
     cpy_squares[cpy_prevSelectedSquare.x][cpy_prevSelectedSquare.y];
   const pieceColor = getPieceTeam(pieceToMove);
+  let ownKingInCheck = false;
+  let oppKingInCheck = false;
+  let oppKing = {}
+  let oppCanTakeChecker = false;
 
-  test = getAllMoves(squares, "BLACK");
-  console.log("Moves for Black team", test);
+  //create test board to simulate the board status after the move (to determine things like check, etc)
+  let testBoard = makeTestBoard(prevSelectedSquare, selectedSquare, currentSquares, pieceToMove);
+
+  // check if own king is put into check from this board. if so, return normal board and dont allow move
+  ownKingInCheck = isOwnKingInCheck(testBoard, pieceToMove);
+
+  // check if opp king is put into check from this board
+  oppKingInCheck = isOppKingInCheck(testBoard, pieceToMove);
+
+  //check if opponent king is put into checkmate and therefore: opp king can't move and no opponent moves can take out the checker
+  //need kingPos, checkerPos,
+  oppKing.pos = getOppKingPos(testBoard, pieceColor);
+  checkPos = {x: cpy_selectedSquare.x, y: cpy_selectedSquare.y};
+  oppKing.piece = testBoard[oppKing.pos.x][oppKing.pos.y];
+  oppKing.moves = getKingMoves(oppKing.pos.x, oppKing.pos.y, testBoard,oppKing.piece );
+
+  //check to see if the oppenent will be able to take the checker position after the turn (so don't end game for checkmate)
+  oppCanTakeChecker = canOppTakeChecker(testBoard, checkPos, oppKing.piece);
 
   if (pieceColor === "WHITE") {
-    if (isPlayerTurn === false) {
+    if (isPlayerTurn === false || ownKingInCheck) {
       reqStatus = "COULDNOTMOVE";
 
       return {
@@ -43,7 +64,7 @@ exports.movePiece = function movePiece(
       };
     }
   } else if (pieceColor === "BLACK") {
-    if (isPlayerTurn === true) {
+    if (isPlayerTurn === true || ownKingInCheck) {
       reqStatus = "COULDNOTMOVE";
 
       return {
@@ -298,7 +319,6 @@ function checkIfValid(moves, i, y) {
 }
 
 function getKnightMoves(i, y, squares, pieceType) {
-  debugger;
   let moves = [];
   let prunedMovesList = [];
 
@@ -328,7 +348,6 @@ function getKnightMoves(i, y, squares, pieceType) {
     }
   });
 
-  debugger;
   prunedMovesList.forEach((prunedMove) => {
     if (isBlocking(prunedMove.x, prunedMove.y, squares)) {
       //if there is a block, check if oppenent or own piece. if oppon, add the move and break loop
@@ -342,11 +361,11 @@ function getKnightMoves(i, y, squares, pieceType) {
     }
   });
 
-  debugger;
   return moves;
 }
 
 function getKingMoves(i, y, squares, pieceType, hasNotCastled) {
+
   let moves = [];
   let prunedMovesList = [];
 
@@ -738,43 +757,43 @@ function getAllPieceMoves(i, y, squares, piece) {
       break;
 
     case cnst.WHITE_KNIGHT:
-      moves = getKnightMoves(i, y, squares, pieceType);
+      moves = getKnightMoves(i, y, squares, piece);
       break;
 
     case cnst.BLACK_KNIGHT:
-      moves = getKnightMoves(i, y, squares, pieceType);
+      moves = getKnightMoves(i, y, squares, piece);
       break;
 
     case cnst.WHITE_BISHOP:
-      moves = getBishopMoves(i, y, squares, pieceType);
+      moves = getBishopMoves(i, y, squares, piece);
       break;
 
     case cnst.BLACK_BISHOP:
-      moves = getBishopMoves(i, y, squares, pieceType);
+      moves = getBishopMoves(i, y, squares, piece);
       break;
 
     case cnst.WHITE_ROOK:
-      moves = getRookMoves(i, y, squares, pieceType);
+      moves = getRookMoves(i, y, squares, piece);
       break;
 
     case cnst.BLACK_ROOK:
-      moves = getRookMoves(i, y, squares, pieceType);
+      moves = getRookMoves(i, y, squares, piece);
       break;
 
     case cnst.WHITE_QUEEN:
-      moves = getQueenMoves(i, y, squares, pieceType);
+      moves = getQueenMoves(i, y, squares, piece);
       break;
 
     case cnst.BLACK_QUEEN:
-      moves = getQueenMoves(i, y, squares, pieceType);
+      moves = getQueenMoves(i, y, squares, piece);
       break;
 
     case cnst.WHITE_KING:
-      moves = getKingMoves(i, y, squares, pieceType);
+      moves = getKingMoves(i, y, squares, piece);
       break;
 
     case cnst.BLACK_KING:
-      moves = getKingMoves(i, y, squares, pieceType);
+      moves = getKingMoves(i, y, squares, piece);
       break;
 
     default:
@@ -782,9 +801,6 @@ function getAllPieceMoves(i, y, squares, piece) {
       break;
   }
 
-  if (moves.length === 0) {
-    console.log(moves, "No moves available for this piece");
-  } else console.log(moves);
   return moves;
 }
 
@@ -804,12 +820,11 @@ function getAllMoves(squares, team) {
       //otherwise piece is on same team, so get its moves and add to team moves
       else if (getPieceTeam(squares[i][y]) === team) {
         selectedPiece = squares[i][y];
-        console.log("on piece ", i, y, selectedPiece);
         pieceMoves = getAllPieceMoves(i, y, squares, selectedPiece);
 
+        let pos = { x: i, y: y };
         if (pieceMoves.length !== 0) {
-          console.log("pushed piece moves for ", i, y, selectedPiece);
-          teamMoves.push({ piece: selectedPiece, moves: pieceMoves });
+          teamMoves.push({ piece: selectedPiece, pos: pos, moves: pieceMoves });
         }
       }
     }
@@ -817,3 +832,195 @@ function getAllMoves(squares, team) {
   return teamMoves;
 }
 
+function isOwnKingInCheck(squares, piece) {
+  let ownKingInCheck = false;
+  let team = getPieceTeam(piece);
+  let kingPosI;
+  let kingPosY;
+  let oppMoves;
+  debugger;
+
+
+  switch (team) {
+    case 'WHITE':
+
+      //get own kings position
+      for (let j = 0; j < cnst.MAX_X; j++) {
+        for (let k = 0; k < cnst.MAX_Y; k++) {
+          if (squares[j][k] === cnst.WHITE_KING) {
+            kingPosI = j;
+            kingPosY = k;
+          }
+        }
+      }
+
+      //check if own king is put into check with this board
+      oppMoves = getAllMoves(squares, 'BLACK');
+      oppMoves.forEach(pieceMove => {
+        pieceMove.moves.forEach(move => {
+          if (move.x === kingPosI && move.y === kingPosY) {
+            ownKingInCheck = true;
+          }
+        })
+      });
+      break;
+
+    case 'BLACK':
+      //get own kings position
+      for (let j = 0; j < cnst.MAX_X; j++) {
+        for (let k = 0; k < cnst.MAX_Y; k++) {
+          if (squares[j][k] === cnst.BLACK_KING) {
+            kingPosI = j;
+            kingPosY = k;
+          }
+        }
+      }
+
+      //check if own king is pujt into check with this board
+      oppMoves = getAllMoves(squares, 'WHITE');
+      oppMoves.forEach(pieceMove => {
+        pieceMove.moves.forEach(move => {
+          if (move.x === kingPosI && move.y === kingPosY) {
+            ownKingInCheck = true;
+          }
+        })
+      });
+      break;
+
+    default:
+      break;
+
+  }
+  return ownKingInCheck;
+}
+
+function isOppKingInCheck(squares, piece) {
+  let kingInCheck = false;
+  let team = getPieceTeam(piece);
+  let kingPosI;
+  let kingPosY;
+  let oppMoves;
+
+
+  switch (team) {
+    case 'WHITE':
+
+      //get opp kings position
+      for (let j = 0; j < cnst.MAX_X; j++) {
+        for (let k = 0; k < cnst.MAX_Y; k++) {
+          if (squares[j][k] === cnst.BLACK_KING) {
+            kingPosI = j;
+            kingPosY = k;
+          }
+        }
+      }
+
+      //check if opp king is put into check with this board
+      oppMoves = getAllMoves(squares, 'WHITE');
+      oppMoves.forEach(pieceMove => {
+        pieceMove.moves.forEach(move => {
+          if (move.x === kingPosI && move.y === kingPosY) {
+            kingInCheck = true;
+          }
+        })
+      });
+      break;
+
+    case 'BLACK':
+      //get kings position
+      for (let j = 0; j < cnst.MAX_X; j++) {
+        for (let k = 0; k < cnst.MAX_Y; k++) {
+          if (squares[j][k] === cnst.WHITE_KING) {
+            kingPosI = j;
+            kingPosY = k;
+          }
+        }
+      }
+
+      oppMoves = getAllMoves(squares, 'BLACK');
+      oppMoves.forEach(pieceMove => {
+        pieceMove.moves.forEach(move => {
+          if (move.x === kingPosI && move.y === kingPosY) {
+            kingInCheck = true;
+          }
+        })
+      });
+      break;
+
+    default:
+      break;
+
+  }
+  return kingInCheck;
+}
+
+function makeTestBoard(prevSelectedSquare, selectedSquare, cpy_squares, pieceToMove) {
+
+  let testBoard = Array.from(cpy_squares);
+  let prevX = prevSelectedSquare.x;
+  let prevY = prevSelectedSquare.y;
+  let selecX = selectedSquare.x;
+  let selecY = selectedSquare.y;
+
+  testBoard[prevX][prevY] = "";
+  testBoard[selecX][selecY] = pieceToMove;
+
+  return testBoard;
+
+}
+
+function getOppKingPos(squares, team) {
+
+  let kingPosI;
+  let kingPosY;
+
+  switch (team) {
+    case 'WHITE':
+      //get own kings position
+      for (let j = 0; j <= cnst.MAX_X; j++) {
+        for (let k = 0; k <= cnst.MAX_Y; k++) {
+          if (squares[j][k] === cnst.BLACK_KING) {
+            kingPosI = j;
+            kingPosY = k;
+          }
+        }
+      }
+
+      break;
+
+    case 'BLACK':
+      //get own kings position
+      for (let j = 0; j <= cnst.MAX_X; j++) {
+        for (let k = 0; k <= cnst.MAX_Y; k++) {
+          if (squares[j][k] === cnst.WHITE_KING) {
+            kingPosI = j;
+            kingPosY = k;
+          }
+        }
+      }
+      break;
+
+    default:
+      break;
+  }
+  return { x: kingPosI, y: kingPosY }
+
+}
+
+function canOppTakeChecker(squares, pos, oppPiece) {
+  let team = getPieceTeam(oppPiece);
+  let oppMoves = getAllMoves(squares, team);
+  let canTake = false;
+
+  oppMoves.forEach(pieceMove => {
+    pieceMove.moves.forEach(move => {
+      if (move.x === 4 && move.y === 1) { debugger; }
+      if (move.x === pos.x && move.y === pos.y) {
+        canTake = true;
+      }
+    })
+  });
+
+  return canTake;
+
+}
