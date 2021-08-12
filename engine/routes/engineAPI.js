@@ -22,8 +22,7 @@ router.get("/", (req, res, next) => {
  */
 router.post("/", (req, res, next) => {
   let msg = Object.assign({}, req.body);
-  let { state, reqStatus } = msg;
-  let { functionCall, functionCallArgs, isPlayerTurn } = state;
+  let { state, reqStatus, functionCall, functionCallArgs } = msg;
 
   switch (functionCall) {
     case "movePiece":

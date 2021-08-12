@@ -54,6 +54,15 @@ exports.movePiece = function movePiece(
   //check to see if the oppenent will be able to take the checker position after the turn (so don't end game for checkmate)
   oppCanTakeChecker = canOppTakeChecker(testBoard, checkPos, oppKing.piece);
 
+  let random1 = Math.floor(Math.random() * test.length);
+  let move = test[random1].moves;
+
+  let random2 = Math.floor(Math.random() * move.length);
+  let damove = move[random2];
+
+  console.log(`random1`, random1);
+  console.log(`rando move`, damove);
+
   if (pieceColor === "WHITE") {
     if (isPlayerTurn === false || ownKingInCheck) {
       reqStatus = "COULDNOTMOVE";
@@ -804,7 +813,13 @@ function getAllPieceMoves(i, y, squares, piece) {
   return moves;
 }
 
-function getAllMoves(squares, team) {
+/**
+ *  @description    This function returns all the moves for a given color (BLACK/WHITE) for each piece.
+ *
+ *  @param
+ *  @param
+ */
+exports.getAllMoves = function getAllMoves(squares, team) {
   let teamMoves = [];
   let selectedPiece;
   let pieceMoves;
