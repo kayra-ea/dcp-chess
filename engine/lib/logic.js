@@ -54,14 +54,14 @@ exports.movePiece = function movePiece(
   //check to see if the oppenent will be able to take the checker position after the turn (so don't end game for checkmate)
   oppCanTakeChecker = canOppTakeChecker(testBoard, checkPos, oppKing.piece);
 
-  let random1 = Math.floor(Math.random() * test.length);
-  let move = test[random1].moves;
+  // let random1 = Math.floor(Math.random() * test.length);
+  // let move = test[random1].moves;
 
-  let random2 = Math.floor(Math.random() * move.length);
-  let damove = move[random2];
+  // let random2 = Math.floor(Math.random() * move.length);
+  // let damove = move[random2];
 
-  console.log(`random1`, random1);
-  console.log(`rando move`, damove);
+  // console.log(`random1`, random1);
+  // console.log(`rando move`, damove);
 
   if (pieceColor === "WHITE") {
     if (isPlayerTurn === false || ownKingInCheck) {
@@ -816,8 +816,8 @@ function getAllPieceMoves(i, y, squares, piece) {
 /**
  *  @description    This function returns all the moves for a given color (BLACK/WHITE) for each piece.
  *
- *  @param
- *  @param
+ *  @param squares
+ *  @param team
  */
 exports.getAllMoves = function getAllMoves(squares, team) {
   let teamMoves = [];
@@ -853,8 +853,6 @@ function isOwnKingInCheck(squares, piece) {
   let kingPosI;
   let kingPosY;
   let oppMoves;
-  debugger;
-
 
   switch (team) {
     case 'WHITE':
@@ -870,7 +868,7 @@ function isOwnKingInCheck(squares, piece) {
       }
 
       //check if own king is put into check with this board
-      oppMoves = getAllMoves(squares, 'BLACK');
+      oppMoves = exports.getAllMoves(squares, 'BLACK');
       oppMoves.forEach(pieceMove => {
         pieceMove.moves.forEach(move => {
           if (move.x === kingPosI && move.y === kingPosY) {
@@ -892,7 +890,7 @@ function isOwnKingInCheck(squares, piece) {
       }
 
       //check if own king is pujt into check with this board
-      oppMoves = getAllMoves(squares, 'WHITE');
+      oppMoves = exports.getAllMoves(squares, 'WHITE');
       oppMoves.forEach(pieceMove => {
         pieceMove.moves.forEach(move => {
           if (move.x === kingPosI && move.y === kingPosY) {
@@ -931,7 +929,8 @@ function isOppKingInCheck(squares, piece) {
       }
 
       //check if opp king is put into check with this board
-      oppMoves = getAllMoves(squares, 'WHITE');
+      oppMoves = exports.getAllMoves(squares, 'WHITE');
+      console.log('moves',oppMoves);
       oppMoves.forEach(pieceMove => {
         pieceMove.moves.forEach(move => {
           if (move.x === kingPosI && move.y === kingPosY) {
@@ -952,7 +951,7 @@ function isOppKingInCheck(squares, piece) {
         }
       }
 
-      oppMoves = getAllMoves(squares, 'BLACK');
+      oppMoves = exports.getAllMoves(squares, 'BLACK');
       oppMoves.forEach(pieceMove => {
         pieceMove.moves.forEach(move => {
           if (move.x === kingPosI && move.y === kingPosY) {
@@ -1024,7 +1023,7 @@ function getOppKingPos(squares, team) {
 
 function canOppTakeChecker(squares, pos, oppPiece) {
   let team = getPieceTeam(oppPiece);
-  let oppMoves = getAllMoves(squares, team);
+  let oppMoves = exports.getAllMoves(squares, team);
   let canTake = false;
 
   oppMoves.forEach(pieceMove => {
