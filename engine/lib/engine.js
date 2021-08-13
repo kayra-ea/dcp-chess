@@ -9,9 +9,12 @@
  */
 
 const logic = require("./logic");
+const heuristic = require("./board-heuristics");
 
 exports.engineMove = function engineMove(moveType, squares, args, reqStatus) {
   let cpy_squares = squares.slice();
+
+  debugger;
 
   switch(moveType){
     case "randomMove":
@@ -20,7 +23,8 @@ exports.engineMove = function engineMove(moveType, squares, args, reqStatus) {
       break;
 
     case "miniMax":
-      cpy_squares = miniMax(squares, 5, true);
+      cpy_squares = miniMax(squares, 2, true).squares;
+      debugger;
       reqStatus = "SUCCESS";
       break;
 
@@ -81,26 +85,53 @@ function randomMove(squares, team){
  *  @param
  */
 function miniMax(board, depth, isEngineTurn) {
+  let cpy_board = board.slice();
+
   if (depth === 0) {
-    return logic.getBoardValue(board);
+    return {
+      squares: board,
+      value: heuristic.getBoardValue(board),
+    };
+    //return logic.getBoardValue(board);
   }
 
-  let moves = logic.getAllMoves();
+  let moves;
+  let boards = [];
+  if (isEngineTurn){
+    moves = logic.getAllMoves(board, "BLACK");
+  } else {
+    moves = logic.getAllMoves(board, "WHITE");
+  }
+
+  moves.forEach((pieceMove) => {
+    pieceMove.moves.forEach((move) => {
+      let copyBoard = JSON.parse(JSON.stringify(board));
+      boards.push(logic.makeTestBoard(pieceMove.pos, move, copyBoard, pieceMove.piece));
+    })
+  })
 
   let value;
   if (isEngineTurn) {
     value = Number.MIN_SAFE_INTEGER;
-    moves.forEach((element) => {
-      value = max(value, miniMax(element, depth - 1, false));
+    boards.forEach((element) => {
+      value = Math.max(value, miniMax(element, depth - 1, false).value);
     });
-    return value;
+    return {
+      squares: board,
+      value: value,
+    };
+    //return value;
   } else {
     //minimizing the user's turn
     value = Number.MAX_SAFE_INTEGER;
-    moves.forEach((element) => {
-      value = min(value, miniMax(element, depth - 1, true));
+    boards.forEach((element) => {
+      value = Math.min(value, miniMax(element, depth - 1, true).value);
     });
-    return value;
+    return {
+      squares: board,
+      value: value,
+    };
+    //return value;
   }
 
   // function minimax(node, depth, maximizingPlayer) is
